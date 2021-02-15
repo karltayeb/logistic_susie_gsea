@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="karltayeb" />
+
+<meta name="date" content="2021-02-06" />
+
+<title>GO_simulation</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">logistic_susie_gsea</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">GO_simulation</h1>
+<h4 class="author">karltayeb</h4>
+<h4 class="date">2021-02-06</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2021-02-15
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>logistic_susie_gsea/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210205code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20210205)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20210205code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20210205)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongdetected"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Cache:</strong> detected </a>
+</p>
+</div>
+<div id="strongCachestrongdetected" class="panel-collapse collapse">
+<div class="panel-body">
+The following chunks had caches available:
+<ul>
+<li>
+first_simulation
+</li>
+<li>
+null_simulation
+</li>
+</ul>
+<p>To ensure reproducibility of the results, delete the cache directory <code>GO_simulation_cache</code> and re-run the analysis. To have workflowr automatically delete the cache directory prior to building the file, set <code>delete_cache = TRUE</code> when running <code>wflow_build()</code> or <code>wflow_publish()</code>.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong4b8c571"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 4b8c571 </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrong4b8c571" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version 4b8c571. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    analysis/GO_simulation_cache/
+
+Untracked files:
+    Untracked:  GO_simulation_cache/
+    Untracked:  analysis/cache/
+    Untracked:  analysis/initial_exploration.Rmd
+    Untracked:  analysis/test.Rmd
+    Untracked:  cache/
+    Untracked:  data/GO_Membership.RData
+    Untracked:  data/WebGestalt/
+    Untracked:  data/WebGestalt_cache/
+    Untracked:  data/gene_list.txt
+    Untracked:  output/WebGestalt/
+
+Unstaged changes:
+    Modified:   .gitignore
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/GO_simulation.Rmd</code>) and HTML (<code>docs/GO_simulation.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+4b8c571
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+<td>
+first publish
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="set-up" class="section level2">
+<h2>Set-up</h2>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+✓ tibble  3.0.6     ✓ dplyr   1.0.4
+✓ tidyr   1.1.2     ✓ stringr 1.4.0
+✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(WebGestaltR)</code></pre>
+<pre><code>******************************************</code></pre>
+<pre><code>*                                        *</code></pre>
+<pre><code>*          Welcome to WebGestaltR !      *</code></pre>
+<pre><code>*                                        *</code></pre>
+<pre><code>******************************************</code></pre>
+<pre class="r"><code>library(Matrix)</code></pre>
+<pre><code>
+Attaching package: &#39;Matrix&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:tidyr&#39;:
+
+    expand, pack, unpack</code></pre>
+<pre class="r"><code>library(pbapply)
+source(&quot;~/Research/susieR_logistic_wflow/code/logistic_susie_VB_functions.R&quot;)
+
+options(dplyr.summarise.inform = FALSE)
+options(xfun.cache_rds.clean = FALSE)
+
+knitr::opts_chunk$set(cache.path=&#39;cache/&#39;)</code></pre>
+<div id="get-data" class="section level3">
+<h3>Get Data</h3>
+<p>We’re going to get our gene sets from WebGestlatR. They have a bunch of gene sets that should do a good job capturing the typical use case for GSEA. We can select any gene sets listed in <code>listGeneSet()</code></p>
+<pre class="r"><code>print(head(listGeneSet())$name)</code></pre>
+<pre><code>[1] &quot;geneontology_Biological_Process&quot;            
+[2] &quot;geneontology_Biological_Process_noRedundant&quot;
+[3] &quot;geneontology_Cellular_Component&quot;            
+[4] &quot;geneontology_Cellular_Component_noRedundant&quot;
+[5] &quot;geneontology_Molecular_Function&quot;            
+[6] &quot;geneontology_Molecular_Function_noRedundant&quot;</code></pre>
+<p>Here we fetch the <code>geneontology_Biological_Process_noRedundant</code> gene sets and shape them into a gene x gene set matrix <span class="math inline">\(X\)</span>. When we expand these simulations we should think about which we want to use. I looks at the normal GO BP terms and it is very large with around ~16k gene sets ranging from very small to containing all almost all genes.</p>
+<pre class="r"><code>organism &lt;- &#39;hsapiens&#39;
+interestGeneType = &quot;ensembl_gene_id&quot;
+referenceGeneType = &quot;ensembl_gene_id&quot;
+outputDirectory = &#39;./data/WebGestalt/results&#39;
+cache = &#39;./data/WebGestalt/cache/&#39;
+hostName = &#39;http://www.webgestalt.org/&#39;
+
+dir.create(cache, recursive = T)</code></pre>
+<pre><code>Warning in dir.create(cache, recursive = T): &#39;./data/WebGestalt/cache&#39; already
+exists</code></pre>
+<pre class="r"><code>enrichDatabase &lt;- c(&#39;geneontology_Biological_Process_noRedundant&#39;)
+geneSet &lt;- loadGeneSet(
+  organism=organism, enrichDatabase=enrichDatabase, cache=cache, hostName=hostName)$geneSet
+
+X &lt;- geneSet %&gt;% 
+  add_column(in_geneSet = 1) %&gt;% 
+  select(c(geneSet, in_geneSet, gene)) %&gt;% 
+  pivot_wider(names_from = geneSet, values_from = in_geneSet) %&gt;%
+  mutate(across(everything(), ~replace_na(.x, 0)))
+
+geneSets &lt;- colnames(X)
+backgroundGene &lt;- X$gene
+X_mat &lt;- as.matrix(X[,-1])
+rownames(X_mat) &lt;- X$gene</code></pre>
+</div>
+<div id="simulation-generator" class="section level3">
+<h3>Simulation Generator</h3>
+<p>The simulation here are simple: There will be a set of <code>L</code> <em>active</em> gene sets whose genes are observed with log odds controlled by parameter <code>active.logit</code>. All other genes will be observed with log odds controlled by parameter <code>background.logit</code>. <span class="math inline">\(X\)</span> is an <span class="math inline">\(n \times p\)</span> binary matrix indicating membership of genes in gene clusters For <span class="math inline">\(n\)</span> genes and <span class="math inline">\(p\)</span> gene sets.</p>
+<pre class="r"><code>logit2prob &lt;- function(logit){
+  odds &lt;- exp(logit)
+  prob &lt;- odds / (1 + odds)
+  return(prob)
+}
+
+prob2logit &lt;- function(logit){
+  return(log(p) - log(1-p))
+}
+
+generate.sim.data &lt;- function(X, L=1, background.logit=-10, active.logit=10, rep=1, annotations=list()){
+  # X is a gene x gene_set matrix indicating membership in gene set  n x p
+  # L is the number of gene sets to have active
+  # background_logit, active_logit logodds of observing gene in our gene list
+  # reps number of replicates to simulate
+  
+  n &lt;- dim(X)[1]
+  p &lt;- dim(X)[2]
+
+  logit &lt;- rep(background.logit, n)
+  active_gene_sets &lt;- sample(seq(1:p), L, replace = F)
+  for (a in active_gene_sets){
+    logit[X[, a] == 1] &lt;- active.logit
+  }
+  
+  Y &lt;- matrix(rbinom(n*rep, 1, logit2prob(logit)), nrow = n, byrow = FALSE)
+  sim &lt;- list(active=active_gene_sets, logit=logit, Y=Y, X=X, rep=rep, background.logit=background.logit, active.logit=active.logit)
+  sim &lt;- c(sim, annotations)
+  return(sim)
+}
+
+generate.sim.data.rep &lt;- function(X, L=1, background.logit=-10, active.logit=10, inner.rep=2, outer.rep=10, annotations=list()){
+  sim.rep &lt;- t(replicate(outer.rep, generate.sim.data(
+    X, L=L, background.logit=background.logit, active.logit=active.logit,
+    rep=inner.rep, annotations =annotations)))
+}
+
+sim.rep &lt;- generate.sim.data.rep(X=X_mat, L=1, background.logit = -3, active.logit = -2, inner.rep = 2, outer.rep = 10)</code></pre>
+</div>
+<div id="some-code-to-fit-susie" class="section level3">
+<h3>some code to fit SuSiE</h3>
+<pre class="r"><code>comp_pip &lt;- function(susie){
+  return(1 - exp(rowSums(log(1 - susie$post_alpha))))
+}
+
+run.susie &lt;- function(sim, L=1, V=1, inner.rep=1, maxit=50){
+    X &lt;- sim$X
+    Y &lt;- sim$Y[,inner.rep]
+    geneSets &lt;- colnames(sim$X)
+    susie &lt;- susie_logistic_VB(Y, as.matrix(X), L = L, V = V, prior_weights = NULL, tol = 1e-4, maxit = maxit)
+    result &lt;- data.frame(
+      geneSets, comp_pip(susie),
+      susie$post_alpha, susie$post_mu,
+      (geneSets %in% geneSets[sim$active])
+    )
+    colnames(result) &lt;- c(
+      &#39;geneSet&#39;, &#39;pip&#39;,
+      paste(&#39;post_alpha&#39;, seq(1:L), sep=&#39;&#39;), paste(&#39;post_mu&#39;, seq(1:L), sep=&#39;&#39;),
+      &#39;active&#39;
+    )
+    
+  annotation_cols &lt;- names(sim)[!(names(sim) %in% c(&#39;active&#39;, &#39;logit&#39;, &#39;Y&#39;, &#39;X&#39;, &#39;rep&#39;))]
+  for (col in annotation_cols) {
+    result &lt;- result %&gt;% mutate(&quot;{col}&quot; := sim[[col]])
+  }
+  return(result)
+}
+
+run.susie.rep &lt;- function(sim.rep, L=1, V=1, maxit=50){
+  susie.results &lt;- c()
+  for (i in seq(1:dim(sim.rep)[1])){
+    sim = sim.rep[i,]
+    for (j in seq(1:sim$rep)){
+      rep.result &lt;- run.susie(sim, L, V, j, maxit) %&gt;% mutate(inner.rep=j, outer.rep=i,background.logit=sim$background.logit, active.logit=sim$active.logit)
+      susie.results &lt;- rbind(susie.results, rep.result)
+    }
+  }
+  susie.results &lt;- susie.results %&gt;% arrange(desc(pip)) %&gt;% mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+  return(susie.results)
+}
+
+
+run.susie.rep.cached &lt;- function(sim.rep, L=1, V=1, maxit=50, file=NULL, recompute=F){
+  if (file.exists(file) &amp; !recompute) {
+    susie.result &lt;- readRDS(file)
+  } else {
+    susie.result &lt;- run.susie.rep(sim.rep, L=L, V=V, maxit = maxit)
+    saveRDS(susie.result, file=file)
+  }
+  
+  susie.result &lt;- susie.result %&gt;% 
+    arrange(desc(pip)) %&gt;% 
+    mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+  return(susie.result)
+}</code></pre>
+<pre class="r"><code>compute.cset.size.single.effect&lt;- function(susie.result, col, alpha=0.95){
+  susie.cset &lt;- susie.result %&gt;% 
+    group_by(inner.rep, outer.rep) %&gt;% 
+    arrange(desc(!!as.name(col))) %&gt;%
+    mutate(cset_mass = cumsum(!!as.name(col)), total_active = sum(active)) %&gt;%
+    filter(cumall((cset_mass - !!as.name(col) &lt;= alpha) | (cset_mass == min(cset_mass)))) %&gt;%
+    summarise(cset_size= length(cset_mass), num_active = sum(active), total_active=max(total_active), min_post_alpha = min(!!as.name(col)))
+  return(susie.cset)
+}
+
+
+compute.cset.sizes &lt;- function(susie.result, alpha=0.95){
+  cols &lt;- colnames(select(susie.result, contains(&quot;post_alpha&quot;)))
+  results &lt;- c()
+  for (col in cols){
+    col.result &lt;- compute.cset.size.single.effect(susie.result, col, alpha) %&gt;% mutate(component = col)
+    results &lt;- rbind(results, col.result)
+  }
+  return(results)
+}</code></pre>
+</div>
+<div id="some-code-to-do-ora" class="section level3">
+<h3>some code to do ORA</h3>
+<p>Code inspired by the WebGestaltR source code. Holding off on affinity prop or weighted set cover to reduce redundancy for the moment. Later, we will evaluate how well these methods help reduce redundancy and I identify the correct gene sets.</p>
+<pre class="r"><code>run.ora&lt;- function(sim, inner.rep=1){
+  referenceGene &lt;- rownames(sim$X)
+  geneSets &lt;- colnames(sim$X)
+  interestGene = referenceGene[sim$Y[, inner.rep] == 1]
+  f = length(interestGene) / length(referenceGene)
+  
+  a &lt;- which(sim$X!=0,arr.ind = T)
+  geneSet &lt;- cbind(referenceGene[a[,1]], geneSets[a[,2]])
+  colnames(geneSet) &lt;- c(&#39;gene&#39;, &#39;geneSet&#39;)
+  geneSet &lt;- as_tibble(geneSet)
+  
+  ORA &lt;- geneSet %&gt;% 
+    group_by(geneSet) %&gt;% 
+    summarise(
+      size = length(gene),
+      n.interestGene=length(interestGene),
+      n.referenceGene = length(referenceGene),
+      overlap = sum(gene %in% interestGene),
+      expect = (size * f),
+      enrichmentRatio = overlap/expect) 
+  ORA &lt;- ORA %&gt;%
+    mutate(
+      active = (geneSet %in% geneSets[sim$active]),
+      logpValue=1-phyper(overlap - 1, n.interestGene, n.referenceGene - n.interestGene, size, lower.tail=TRUE, log.p=T),
+      pValue=exp(logpValue),
+      FDR = p.adjust(pValue, method = &#39;fdr&#39;)
+    ) %&gt;% arrange(desc(enrichmentRatio))
+  
+  annotation_cols &lt;- names(sim)[!(names(sim) %in% c(&#39;active&#39;, &#39;logit&#39;, &#39;Y&#39;, &#39;X&#39;, &#39;rep&#39;))]
+  for (col in annotation_cols) {
+    ORA &lt;- ORA %&gt;% mutate(&quot;{col}&quot; := sim[[col]])
+  }
+  return(ORA)
+}
+
+run.ora.rep &lt;- function(sim.rep){
+  ora.results &lt;- c()
+  for (i in seq(1:dim(sim.rep)[1])){
+    sim = sim.rep[i,]
+    for (j in seq(1:sim$rep)){
+      rep.result &lt;- run.ora(sim, j) %&gt;% mutate(inner.rep=j, outer.rep=i,background.logit=sim$background.logit, active.logit=sim$active.logit)
+      ora.results &lt;- rbind(ora.results, rep.result)
+    }
+  }
+  ora.results &lt;- ora.results %&gt;% mutate(nlog10p = -log10(pValue))
+  ora.results &lt;- ora.results %&gt;% arrange(desc(nlog10p)) %&gt;% mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+  return(ora.results)
+}
+
+run.ora.rep.cached &lt;- function(sim.rep, file=NULL, recompute=F){
+  if (file.exists(file) &amp; !recompute) {
+    ora.result &lt;- readRDS(file)
+  } else {
+    ora.result &lt;- run.ora.rep(sim.rep)
+    saveRDS(ora.result, file=file)
+  }
+  return(ora.result)
+}</code></pre>
+<pre class="r"><code>sim &lt;- sim.rep[1,]
+referenceGene &lt;- rownames(sim$X)
+geneSets &lt;- colnames(sim$X)
+
+interestGene = referenceGene[sim$Y[, 1] == 1]
+f = length(interestGene) / length(referenceGene)
+ORA &lt;- geneSet %&gt;% 
+  group_by(geneSet) %&gt;% 
+  summarise(
+    size = length(gene),
+    n.interestGene=length(interestGene),
+    n.referenceGene = length(referenceGene),
+    overlap = sum(gene %in% interestGene),
+    expect = (size * f),
+    enrichmentRatio = overlap/expect) 
+
+ORA &lt;- ORA %&gt;%
+  mutate(
+    active = (geneSet %in% geneSets[sim$active]),
+    pValue=1-phyper(overlap - 1, n.interestGene, n.referenceGene - n.interestGene, size, lower.tail=TRUE, log.p=FALSE),
+    FDR = p.adjust(pValue, method = &#39;fdr&#39;)
+  ) %&gt;%
+  arrange(desc(overlap))</code></pre>
+</div>
+</div>
+<div id="how-do-the-gene-sets-look" class="section level2">
+<h2>How do the gene sets look</h2>
+<pre class="r"><code>hist(colSums(X_mat), breaks = seq(0, 500, by=10), main = &#39;Gene Set Sizes&#39;)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>hist(rowSums(X_mat), breaks = seq(0, 200, by=1), xlim = c(0, 100), main=&#39;Gene Sets per Gene&#39;)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>hist(colSums(X_mat), main = &#39;Gene Set Sizes&#39;)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>hist(rowSums(X_mat), main=&#39;Gene Sets per Gene&#39;)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>X_mat_trunc &lt;- X_mat[, (colSums(X_mat) &gt; 10 &amp; colSums(X_mat) &lt; 5000)]
+hist(colSums(X_mat_trunc), main = &#39;Gene Set Sizes&#39;)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>hist(rowSums(X_mat_trunc), main=&#39;Gene Sets per Gene&#39;)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>X_mat_sp &lt;- Matrix::Matrix(X_mat, sparse = T)
+XX &lt;- t(X_mat_sp) %*% X_mat_sp
+image(XX)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-7.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Gene set sizes vary considerably, but typical seems around 20-100. Many genes participate in multiple gene set.</p>
+<p>First we do a simulation where there are no active gene sets. To start we use <code>background.logit = -3</code> which correspond approximately with doing gene level testing and running GSEA for all genes with <span class="math inline">\(p &lt; 0.05\)</span>.</p>
+</div>
+<div id="simulations-using-go" class="section level2">
+<h2>Simulations using GO</h2>
+<div id="a-null-simulation" class="section level3">
+<h3>A null simulation</h3>
+<p>First we do a simulation with no active gene sets. We set the background probability of a gene being included in the gene list at around <span class="math inline">\(0.05\)</span>. We compare how a hypergeometric test behave.</p>
+<pre class="r"><code>set.seed(1)
+sim.rep &lt;- generate.sim.data.rep(X=X_mat, L=0, background.logit = -3, inner.rep = 2, outer.rep = 100)
+
+p &lt;- &#39;./cache/null.sim.ora.rds&#39;
+ora.result &lt;- run.ora.rep.cached(sim.rep, file=p)
+
+p &lt;- &#39;./cache/null.sim.rds&#39;
+susie.result &lt;- run.susie.rep.cached(sim.rep, file=p)</code></pre>
+<pre class="r"><code>geneSetSizes &lt;- geneSet %&gt;% group_by(geneSet) %&gt;% summarise(size = length(gene))
+
+ora.result %&gt;% 
+  mutate(geneSetSizeBin = cut(size, include.lowest = T, breaks=quantile(size, probs=seq(0, 1, by=0.1), ))) %&gt;% 
+  select(geneSet, geneSetSizeBin, nlog10p) %&gt;%
+  ggplot(aes(x=geneSetSizeBin, y=nlog10p)) + geom_boxplot()</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>qqman::qq(ora.result$pValue)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>P values are just slightly deflated for hypergeometric p values. I think you would expect this due to overlap, since the tests are not independent. Although this is quite different from what you might see in real data where genes are often correlated. In this case you would expect the test to be anti-conservative.</p>
+<pre class="r"><code>susie.result &lt;- susie.result %&gt;% inner_join(geneSetSizes)</code></pre>
+<pre><code>Joining, by = &quot;geneSet&quot;</code></pre>
+<pre class="r"><code>susie.result %&gt;% 
+  mutate(geneSetSizeBin = cut(size, include.lowest = T, breaks=quantile(size, probs=seq(0, 1, by=0.1)))) %&gt;% 
+  select(geneSet, geneSetSizeBin, pip) %&gt;%
+  ggplot(aes(x=geneSetSizeBin, y=log(pip))) + geom_boxplot()</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>SuSiE tends to give smaller gene sets slightly larger PIP. This makes sense, it is more likely that a small gene set gets a higher proportion of genes than background by chance. Not a problem with Fisher. Hypergeometric distribution with fewer samples (corresponding with a smaller gene set) have higher variance, and the pvalues reflect that.</p>
+<pre class="r"><code>cset.summary &lt;- compute.cset.sizes(susie.result, alpha=0.95)
+cset.summary %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Good to see that in all the simulations we did not get any cases where logistic SuSiE returns small credible sets.</p>
+<pre class="r"><code>ora.result %&gt;% 
+  mutate(geneSetSizeBin = cut(size, include.lowest = T, breaks=quantile(size, probs=seq(0, 1, by=0.1), ))) %&gt;% 
+  select(geneSet, geneSetSizeBin, enrichmentRatio) %&gt;%
+  ggplot(aes(x=geneSetSizeBin, y=enrichmentRatio)) + geom_boxplot()</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="one-active-gene-set" class="section level3">
+<h3>One active gene set</h3>
+<p>Next we simulate one active gene set. Genes in the active gene set will be included in the gene list <code>active.logit = -2</code> with probability <span class="math inline">\(p = 0.12\)</span>. Since the gene set is small relative to the background gene set, most of the genes included in the list are junk.</p>
+<pre class="r"><code>set.seed(1)
+sim.rep &lt;- generate.sim.data.rep(X=X_mat, L=1, background.logit = -3, active.logit = -2, inner.rep = 2, outer.rep = 100)
+
+p &lt;- &#39;./cache/fist.sim.ora.rds&#39;
+ora.result &lt;- run.ora.rep.cached(sim.rep, file = p, recompute = T)
+
+p &lt;- &#39;./cache/fist.sim.rds&#39;
+susie.result &lt;- run.susie.rep.cached(sim.rep, file=p)
+
+plot.fdr.power &lt;- function(df, color){
+  return(geom_path(data = df, aes(x=eFDR, y=power, color=color)))
+}
+ggplot() + plot.fdr.power(susie.result, &#39;SuSiE&#39;) + plot.fdr.power(ora.result, &#39;Hypergeometric&#39;)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/first.sim-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>So logistic SuSiE PIPs do a better job prioritizing active gene sets then hypergeometric p values.</p>
+<pre class="r"><code>compute.cset.size.single.effect&lt;- function(susie.result, col, alpha=0.95){
+  susie.cset &lt;- susie.result %&gt;% 
+    group_by(inner.rep, outer.rep) %&gt;% 
+    arrange(desc(!!as.name(col))) %&gt;%
+    mutate(cset_mass = cumsum(!!as.name(col)), total_active = sum(active)) %&gt;%
+    filter(cumall((cset_mass - !!as.name(col) &lt;= alpha) | (cset_mass == min(cset_mass)))) %&gt;%
+    summarise(cset_size= length(cset_mass), num_active = sum(active), total_active=max(total_active), min_post_alpha = min(!!as.name(col)))
+  return(susie.cset)
+}
+
+
+compute.cset.sizes &lt;- function(susie.result, alpha=0.95){
+  cols &lt;- colnames(select(susie.result, contains(&quot;post_alpha&quot;)))
+  results &lt;- c()
+  for (col in cols){
+    col.result &lt;- compute.cset.size.single.effect(susie.result, col, alpha) %&gt;% mutate(component = col)
+    results &lt;- rbind(results, col.result)
+  }
+  return(results)
+}
+
+cset.summary &lt;- compute.cset.sizes(susie.result, alpha=0.95)
+# cset.summary &lt;- susie.result %&gt;% 
+#   filter(active) %&gt;% 
+#   left_join(cset.summary) %&gt;% 
+#   group_by(inner.rep, outer.rep) %&gt;% 
+#   filter(post_alpha1 &gt; min_post_alpha) %&gt;% 
+#   summarise(sum(active)) %&gt;% 
+#   left_join(cset.summary)
+
+
+cset.summary %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Most of the credible sets with less than 100 are of size 1.</p>
+<pre class="r"><code>susie.result %&gt;% 
+  compute.cset.sizes(., alpha=0.95) %&gt;%
+  filter(cset_size &lt; 100) %&gt;% group_by(cset_size) %&gt;%
+  summarise(mean(num_active &gt; 0))</code></pre>
+<pre><code># A tibble: 2 x 2
+  cset_size `mean(num_active &gt; 0)`
+*     &lt;int&gt;                  &lt;dbl&gt;
+1         1                  0.962
+2         2                  1    </code></pre>
+<p>The singleton credible sets have appropriate coverage, so thats good.</p>
+</div>
+<div id="simulation-with-multiple-active-gene-sets" class="section level3">
+<h3>Simulation with multiple active gene sets</h3>
+<p>Now we in each simulation we select 5 active gene sets.</p>
+<pre class="r"><code>set.seed(3)
+sim.rep &lt;- generate.sim.data.rep(X=X_mat, L=5, background.logit = -3, active.logit = -2, inner.rep = 2, outer.rep = 100)
+ora.result &lt;- run.ora.rep(sim.rep)
+
+p &lt;- &#39;./cache/L5-1.sim.rds&#39;
+susie.result1 &lt;- run.susie.rep.cached(sim.rep, L=1, file=p)
+ggplot() + plot.fdr.power(susie.result, &#39;green&#39;) + plot.fdr.power(ora.result, &#39;blue&#39;)</code></pre>
+<p><img src="figure/GO_simulation.Rmd/L5.sim-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>p &lt;- &#39;./cache/L5-5.sim.rds&#39;
+susie.result5 &lt;- run.susie.rep.cached(sim.rep, L=5, file=p)
+
+ggplot() + plot.fdr.power(susie.result1, &#39;SuSiE_L1&#39;) + plot.fdr.power(susie.result5, &#39;SuSiE_L5&#39;) + plot.fdr.power(ora.result, &#39;ORA&#39;) </code></pre>
+<p><img src="figure/GO_simulation.Rmd/L5.sim-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cset.summary &lt;- compute.cset.sizes(susie.result5, alpha=0.95)
+cset.summary &lt;- susie.result %&gt;% 
+  filter(active) %&gt;% 
+  left_join(cset.summary) %&gt;% 
+  group_by(inner.rep, outer.rep) %&gt;% 
+  filter(post_alpha1 &gt; min_post_alpha) %&gt;% 
+  summarise(sum(active)) %&gt;% 
+  left_join(cset.summary)</code></pre>
+<pre><code>Joining, by = c(&quot;inner.rep&quot;, &quot;outer.rep&quot;)
+Joining, by = c(&quot;inner.rep&quot;, &quot;outer.rep&quot;)</code></pre>
+<pre class="r"><code>susie.result1 %&gt;% compute.cset.sizes(., alpha=0.99) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>susie.result5 %&gt;% compute.cset.sizes(., alpha=0.99) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-10-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>susie.result1 %&gt;% 
+  compute.cset.sizes(., alpha=0.95) %&gt;%
+  filter(cset_size &lt; 100) %&gt;% group_by(cset_size) %&gt;%
+  summarise(mean(num_active &gt; 0))</code></pre>
+<pre><code># A tibble: 2 x 2
+  cset_size `mean(num_active &gt; 0)`
+*     &lt;int&gt;                  &lt;dbl&gt;
+1         1                  0.959
+2         2                  1    </code></pre>
+<pre class="r"><code>susie.result5 %&gt;% 
+  compute.cset.sizes(., alpha=0.95) %&gt;%
+  filter(cset_size &lt; 100) %&gt;% group_by(cset_size) %&gt;%
+  summarise(mean(num_active &gt; 0))</code></pre>
+<pre><code># A tibble: 2 x 2
+  cset_size `mean(num_active &gt; 0)`
+*     &lt;int&gt;                  &lt;dbl&gt;
+1         1                  0.969
+2         2                  1    </code></pre>
+</div>
+</div>
+<div id="a-simulation-with-varried-bacgkround-enrichment" class="section level2">
+<h2>A simulation with varried bacgkround enrichment</h2>
+<p>Next lets vary the frequency of background genes that make it into the list.</p>
+<pre class="r"><code>set.seed(3)
+
+background.logits = seq(-8, -2, by=1)
+sim.rep &lt;- lapply(
+  background.logits,
+  function(b) generate.sim.data.rep(X=X_mat, L=1, background.logit = b, active.logit = -2, inner.rep = 2, outer.rep = 20)
+)
+sim.rep &lt;- do.call(&quot;rbind&quot;, sim.rep)
+
+ora.result &lt;- run.ora.rep(sim.rep)
+ora.result &lt;- ora.result %&gt;% 
+  group_by(background.logit) %&gt;%
+  arrange(desc(nlog10p)) %&gt;%  # when there is a tie,
+  #arrange(desc(nlog10p), !active) %&gt;%  # when there is a tie,
+  mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+
+p &lt;- &#39;./cache/increase.background.sim.rds&#39;
+susie.result &lt;- run.susie.rep.cached(sim.rep, L=1, file=p)
+susie.result &lt;- susie.result %&gt;% 
+  group_by(background.logit) %&gt;%
+  arrange(desc(pip)) %&gt;%
+  mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+
+
+df &lt;- rbind(
+  susie.result %&gt;% mutate(method=&#39;SuSiE&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR),
+  ora.result %&gt;% mutate(method=&#39;Hypergeometric&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR))
+
+df %&gt;% ggplot() + facet_wrap(facets=vars(background.logit)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
+<p><img src="figure/GO_simulation.Rmd/vary.background.logit-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ora.result2 &lt;- ora.result %&gt;% 
+  group_by(background.logit) %&gt;%
+  arrange(desc(nlog10p), !active) %&gt;%  # when there is a tie,
+  mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+
+df &lt;- rbind(
+  susie.result %&gt;% mutate(method=&#39;SuSiE&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR),
+  ora.result2 %&gt;% mutate(method=&#39;Hypergeometric&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR))
+
+df %&gt;% ggplot() + facet_wrap(facets=vars(background.logit)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>SuSiE seems to do a better job compared to hypergeometric. Although I think we need to up the simulation size considerably to get a clear picture. <code>-3</code> is the same simulation scenario as the first simulation. Our expectation is that the models should perform best at <code>-8</code> where the observed gene lists are drawn entirely from the active gene set and <code>-2</code>.</p>
+<p>Overall logistic SuSiE seems more robust to increasing background noise. It’s not obvious to me that this should be the case. The intercept term should capture the probability of background genes making it into the list, so if the active gene set is only slightly enriched in the gene list, it would correspond to a pretty small effect size. Perhaps the advantage we are seeing here would go away if we redid the simulation on non-overlapping gene sets.</p>
+</div>
+<div id="simulations-with-varying-overlap-among-gene-sets" class="section level2">
+<h2>Simulations with varying overlap among gene sets</h2>
+<pre class="r"><code>generate.X.overlap &lt;- function(gs.size, stride, n.genes){
+  roll &lt;- function( x , n ){
+    if( n == 0 )
+      return( x )
+    c( tail(x,n) , head(x,-n) )
+  }
+  
+  x1 &lt;- c(rep(1, gs.size), rep(0, n.genes-gs.size))
+  X_overlap &lt;- sapply(seq(0, n.genes - gs.size, by=stride), function(shift) roll(x1, shift))
+  rownames(X_overlap) &lt;- paste(&#39;gene&#39;, seq(1:dim(X_overlap)[1]), sep = &#39;&#39;)
+  colnames(X_overlap) &lt;- paste(&#39;gs&#39;, seq(1:dim(X_overlap)[2]), sep=&#39;&#39;)
+  return(X_overlap)
+}</code></pre>
+<div id="simulation-with-no-overlap" class="section level3">
+<h3>Simulation with no overlap</h3>
+<pre class="r"><code>set.seed(3)
+X_overlap &lt;- generate.X.overlap(10, 10, 1000)
+sim.rep &lt;- lapply(
+  background.logits,
+  function(b) generate.sim.data.rep(X=X_overlap, L=1, background.logit = b, active.logit = -2, inner.rep = 2, outer.rep = 20)
+)
+sim.rep &lt;- do.call(&quot;rbind&quot;, sim.rep)
+
+ora.result &lt;- run.ora.rep(sim.rep)
+ora.result &lt;- ora.result %&gt;% 
+  group_by(background.logit) %&gt;%
+  arrange(desc(nlog10p)) %&gt;%  # when there is a tie,
+  mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+
+p &lt;- &#39;./cache/increase.background.no.overlap.sim.rds&#39;
+susie.result &lt;- run.susie.rep.cached(sim.rep, L=1, file=p, recompute=F)
+susie.result &lt;- susie.result %&gt;% 
+  group_by(background.logit) %&gt;%
+  arrange(desc(pip)) %&gt;%
+  mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+
+
+df &lt;- rbind(
+  susie.result %&gt;% mutate(method=&#39;SuSiE&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR),
+  ora.result %&gt;% mutate(method=&#39;Hypergeometric&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR))
+
+df %&gt;% ggplot() + facet_wrap(facets=vars(background.logit)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
+<p><img src="figure/GO_simulation.Rmd/vary.background.logit.no.overlap-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>When there is no overlap in the gene sets ORA performs virtually the same. So it seems that the improvement we see from ORA to logistic SuSiE has to do with better prioritizing overlapping gene sets.</p>
+</div>
+<div id="null-simulation-increasing-overlap" class="section level3">
+<h3>Null simulation increasing overlap</h3>
+<pre class="r"><code>set.seed(10)
+strides &lt;- seq(2, 10, by = 2)
+
+sim.rep &lt;- lapply(
+  strides,
+  function(s) generate.sim.data.rep(
+    X=generate.X.overlap(10, s, 1000), L=0, background.logit = -3, inner.rep = 2, outer.rep = 20, annotations=list(overlap=10-s))
+)
+sim.rep &lt;- do.call(&quot;rbind&quot;, sim.rep)
+
+ora.result &lt;- run.ora.rep(sim.rep)
+susie.result &lt;- run.susie.rep.cached(sim.rep, maxit = 20, file=&#39;./cache/null.overlap.sim.rds&#39;, recompute = T)
+
+geneSetSizes &lt;- geneSet %&gt;% group_by(geneSet) %&gt;% summarise(size = length(gene))
+
+ora.result %&gt;% 
+  ggplot(aes(x=factor(overlap), y=nlog10p)) + geom_boxplot()</code></pre>
+<pre><code>Warning: Removed 28139 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="figure/GO_simulation.Rmd/overlap.sim.null-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>susie.result %&gt;% 
+  ggplot(aes(x=factor(overlap), y=pip)) + geom_boxplot()</code></pre>
+<p><img src="figure/GO_simulation.Rmd/overlap.sim.null-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>This is verifying expected behavior. As the amount of overlap in gene sets increase, SuSiE returns smaller PIPs</p>
+</div>
+<div id="increasing-overlap-pi_0-approxi-0.25-pi-1" class="section level3">
+<h3>Increasing overlap, <span class="math inline">\(\pi_0 \approxi 0.25\)</span>, <span class="math inline">\(\pi = 1\)</span></h3>
+<pre class="r"><code>set.seed(10)
+strides &lt;- seq(2, 10, by = 2)
+
+sim.rep &lt;- lapply(
+  strides,
+  function(s) generate.sim.data.rep(
+    X=generate.X.overlap(10, s, 1000), L=1, background.logit = -1, active.logit=10, inner.rep = 2, outer.rep = 20, annotations=list(overlap=10-s))
+)
+sim.rep &lt;- do.call(&quot;rbind&quot;, sim.rep)
+
+ora.result &lt;- run.ora.rep(sim.rep)
+susie.result &lt;- run.susie.rep.cached(sim.rep, maxit = 20, file=&#39;./cache/overlap.sim.rds&#39;, recompute = T)
+
+geneSetSizes &lt;- geneSet %&gt;% group_by(geneSet) %&gt;% summarise(size = length(gene))
+
+ora.result &lt;- ora.result %&gt;% 
+  group_by(overlap) %&gt;%
+  arrange(desc(nlog10p)) %&gt;%
+  mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+
+susie.result  &lt;- susie.result %&gt;% 
+  group_by(overlap) %&gt;%
+  arrange(desc(pip)) %&gt;%
+  mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+
+df &lt;- rbind(
+  susie.result %&gt;% mutate(method=&#39;SuSiE&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR, overlap),
+  ora.result %&gt;% mutate(method=&#39;Hypergeometric&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR, overlap))
+
+df %&gt;% ggplot() + facet_wrap(facets=vars(overlap)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
+<p><img src="figure/GO_simulation.Rmd/overlap.sim-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>susie.result1 %&gt;% compute.cset.sizes(., alpha=0.99) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/GO_simulation.Rmd/overlap.sim-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>When the active gene sets is completely included in the gene list both do well. We see that logistic SuSiE does a bit better when there is lots of overlap.</p>
+</div>
+<div id="increasing-overlap-pi_0-approxi-0.12-pi-aprox-0.73" class="section level3">
+<h3>Increasing overlap, <span class="math inline">\(\pi_0 \approxi 0.12\)</span>, <span class="math inline">\(\pi aprox 0.73\)</span></h3>
+<pre class="r"><code>set.seed(10)
+strides &lt;- seq(2, 10, by = 2)
+
+sim.rep &lt;- lapply(
+  strides,
+  function(s) generate.sim.data.rep(
+    X=generate.X.overlap(10, s, 1000), L=1, background.logit = -2, active.logit=1, inner.rep = 2, outer.rep = 20, annotations=list(overlap=10-s))
+)
+sim.rep &lt;- do.call(&quot;rbind&quot;, sim.rep)
+
+ora.result &lt;- run.ora.rep(sim.rep)
+susie.result &lt;- run.susie.rep.cached(sim.rep, maxit = 20, file=&#39;./cache/overlap.sim.rds&#39;, recompute = T)
+
+geneSetSizes &lt;- geneSet %&gt;% group_by(geneSet) %&gt;% summarise(size = length(gene))
+
+ora.result &lt;- ora.result %&gt;% 
+  group_by(overlap) %&gt;%
+  arrange(desc(nlog10p)) %&gt;%
+  mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+
+susie.result  &lt;- susie.result %&gt;% 
+  group_by(overlap) %&gt;%
+  arrange(desc(pip)) %&gt;%
+  mutate(TP = cumsum(active), FP = cumsum(!active), power=TP/sum(active), eFDR= FP / (FP + TP))
+
+df &lt;- rbind(
+  susie.result %&gt;% mutate(method=&#39;SuSiE&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR, overlap),
+  ora.result %&gt;% mutate(method=&#39;Hypergeometric&#39;) %&gt;% select(method, inner.rep, outer.rep, background.logit, power, eFDR, overlap))
+
+df %&gt;% ggplot() + facet_wrap(facets=vars(overlap)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
+<p><img src="figure/GO_simulation.Rmd/overlap.sim2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>susie.result1 %&gt;% compute.cset.sizes(., alpha=0.99) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/GO_simulation.Rmd/overlap.sim2-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Different parameters to make the simulation a bit more challenging.</p>
+<pre class="r"><code>knitr::knit_exit()</code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="karltayeb" />
+
+<meta name="date" content="2021-02-07" />
+
+<title>gsea_notes</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">logistic_susie_gsea</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">gsea_notes</h1>
+<h4 class="author">karltayeb</h4>
+<h4 class="date">2021-02-07</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2021-02-15
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>logistic_susie_gsea/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong4b8c571"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 4b8c571 </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrong4b8c571" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version 4b8c571. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    analysis/GO_simulation_cache/
+
+Untracked files:
+    Untracked:  GO_simulation_cache/
+    Untracked:  analysis/cache/
+    Untracked:  analysis/initial_exploration.Rmd
+    Untracked:  analysis/test.Rmd
+    Untracked:  cache/
+    Untracked:  data/GO_Membership.RData
+    Untracked:  data/WebGestalt/
+    Untracked:  data/WebGestalt_cache/
+    Untracked:  data/gene_list.txt
+    Untracked:  output/WebGestalt/
+
+Unstaged changes:
+    Modified:   .gitignore
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/gsea_notes.Rmd</code>) and HTML (<code>docs/gsea_notes.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+4b8c571
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+<td>
+first publish
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>Below are some notes I jotted down while reading and exploring GSEA options.</p>
+</div>
+<div id="web-tools" class="section level2">
+<h2>Web tools</h2>
+<p>There are a number of online resources for performing GSEA that accept gene lists, ordered gene lists, and occassionally gene level statistics</p>
+<p><strong><em>WebGestalt</em></strong> support GSEA and ORA, accepting gene-level statistics or gene lists. Analysis is performed for each (gene list, gene set) seperately and results are summarized. They deal with redundancy in two ways. First, they have simplified gene sets that remove redundancies (TODO: describe how they do that). They use GOSlims, which are special subsets of GO to help summarize results. Second, they do post-hoc reduce redundancy with one of two methods: affinity propagation and weighted set cover. The paper is a bit vague, but they use the Jaccard index as a measure of similarity (between gene sets, presumably) + significance of each test to return a set of significant gene sets.</p>
+<p>For ORA they use a background of <span class="math inline">\(B \cap \tilde S\)</span> where <span class="math inline">\(B\)</span> is a user provided background and <span class="math inline">\(\tilde S\)</span> is the set of genes in the gene set. They use a hypergeometric test.</p>
+<p><strong><em>DAVID</em></strong> Over representation analysis using EASE score. This is just Fisher’s exact test with a modified contingency table: they decrement (in pathway, in gene list) by a constant and add it back to (in pathway, not in gene list). This makes EASE score more conservative compared to Fisher’s exact test. Results are reported for all tested gene sets, with a pvalue, Bonferonni, Benjamini Hochberg, and FDR via “adaptive linear step=up adjusted p-values for appproximate control of FDR”. They also cluster the results.</p>
+<p>DAVID provides a “Functional Annotation Clustering” that reports clusters of annotations. Each cluster has an associated enrichment score which gives a cluster level estimate of enrichment. kappa statistics are computed for pairs of annotations, to compute the degree of common genes between two annotations (using the union of genes in both, I guess), and fuzzy heuristic clustering is used to get groups of annotations. The group enrichment score is the geometric mean of pvalues of its members, reported on a -log scale.</p>
+<p>In principle I like the idea of clustering related annotations better than the approach taken by WebGestalt, which is to report a “representative member”. Different related pathways might be more ore less meaningful/insightful to each practitioner so giving a list of related gene/sets annotations seems preferable.</p>
+<p><strong><em>GeneCodis</em></strong> The main idea of GeneCodis is that even if large gene sets are not significant (because they contain a lot of potentially not relevant genes) the intersection of gene sets can be significant. They take a gene annotation database and find all combinations of annotations present in at least <span class="math inline">\(x\)</span> genes, where <span class="math inline">\(x\)</span> is user specified. They implement a hypergeometric and <span class="math inline">\(\chi^2\)</span> test of independence, then adjust for multiple corrections using standard methods for controlling FDR. They also offer a simulation based correction (randomly draw a gene lists from background, construct annotation lists, compute p-values, to get empirical null (for each combination of gene-sets or overall? unclear)).</p>
+<p>Currently Gencodis v4 is up and running. In V3 they introduced a post-analysis summarization called GTLinker which “executes several filtering and clustering steps to eliminate redundant and non-informative terms and produces genes and annotations grouped in modules (metagroups). These metagroups, which are supposed to be functionally coherent, absorb the redundancy of the original significant terms and are ranked by their significance and coherence.”</p>
+<p>They only allow you to use at most 3 annotation sources (e.g GO, KEGG, Wikipathways). Their web interface is clunky. In the online report I did not find the metagroups promised in the GenCodis v3 paper. Perhaps they stopped supporting this feature?</p>
+<p><strong><em>MetaScape</em></strong> They accept multiple lists of genes</p>
+<p><strong><em>Enrichr</em></strong> Offers a wide variety of gene set libraries, and a number of tests: proportion test, z-score and combined score, ORA, Jaccard distance. ## Other Methods</p>
+<p><strong><em>GOStats</em></strong> R package implementing hypergeometric test with an interface that makes it easy to specifiy gene sets, background genes, cutoffs, etc. They offer a “conditional method” to deal with nested terms. GO is arranged in a hierarchy so <span class="math inline">\(S_1 \subset S_2 \subset S_3 \subset \dots\)</span>. They test all the leaves first. If the enrichment is significant those genes are removed from all parents before testing the parents. This helps deal with redundancy, since the same gene won’t be in two significant gene sets but it is specific to GO and other nested annotations.</p>
+<p>The authors, Jiang and Gentleman, also suggest performing GSEA on <span class="math inline">\(A \setminus B\)</span>, <span class="math inline">\(A \cap B\)</span> and <span class="math inline">\(B\setminus A\)</span> separately for gene when sets <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> are both significant and have “significant overlap” to attribute relevance to one gene sets, the other, or both. At first glance this seems complicated when you have multiple overlapping gene sets– do you do GSEA on each part of the Venn diagram?</p>
+</div>
+<div id="methods-posing-gsea-as-regression" class="section level2">
+<h2>Methods posing GSEA as regression</h2>
+<p><strong><em>gerr</em></strong> The authors use elastic net (<span class="math inline">\(L_1 + L_2\)</span>) regress binary vector of gene list membership on binary matrix of gene set membership. This is the one paper I saw that was really similar in concept using a sparse regression on gene sets to reduce redundancy.</p>
+<p><strong><em>LRpath</em></strong> For <span class="math inline">\(y_S\)</span> a binary indicator of membership in gene set <span class="math inline">\(S\)</span>. and <span class="math inline">\(x\)</span> a measure of a genes importance they perform a logistic regression <span class="math inline">\(y \sim x\)</span>. Do the odds of being a member of the gene set vary with <span class="math inline">\(x\)</span>? Variants of this model have been proposed including covariates to account for different biases (e.g. gene length bias in differential expression analysis). Perhaps you could also model correlation among genes.</p>
+<p>I think you can relate this approach to tests on contingency tables. Imagine <span class="math inline">\(x\)</span> binary indicator of membership in gene list. <span class="math inline">\(y \sim Binomial(\pi)\)</span> and <span class="math inline">\(\log\frac{\pi}{1 - \pi} = \beta_0 + \beta_1 x\)</span>. If we fit this model on all observed genes <span class="math inline">\(\beta_0\)</span> reflects the proportion of genes in the list in background and <span class="math inline">\(\beta_0 + \beta_1\)</span> the proportion of genes in the gene set.</p>
+</div>
+<div id="other-methods" class="section level2">
+<h2>Other methods</h2>
+<p><strong><em>SetRank</em></strong> Set rank operationalizes the suggestion from Jiang and Gentleman. They do GSEA on each set seperately. Then they construct a graph on gene sets with different edges indicating the outcome of the pairwise analysis. Differemt edges represent (1) subset relationships, (2) scenarios where one set is significant and the other is not after removing the intersection, (3) scenarios where the intersection is the only significant section. They employ an algorithm to prune their graph of likely false positives (arrows pointing away). Then, they use page rank on the resulting graph. Overall this seemed clunky to me.</p>
+<p><strong><em>GORILLA</em></strong> Given a <em>ranked list</em> of genes it computes the minimum hypergeometric statistic by taking the minimum p value of the hypergeometric test across all possible thresholds. Assuming a null where all possible bi-partitions of the gene set are equally likely, they can compute an exact p value. I thought this method was interesting because it is threshold free like GSEA, but doesn’t rely on permutation testing to get a p-value. I have a vague sense that the permutation strategy proposed for GSEA isn’t perfect.</p>
+<p>How well does the best partition of the ranked list perform compared to GSEA? I think better understanding this will help us understand how much information we lose when going from ranked genes lists to unordered gene lists.</p>
+<p><strong><em>CAMERA</em></strong></p>
+<p><strong><em>PAGE</em></strong></p>
+<p><strong><em>GSEA</em></strong></p>
+<p><strong><em>ESEA</em></strong> “Edge set enrichment analysis”. GSEA and other methods are “node centric”. Don’t account for the relationships between genes in genes-ests. The core idea is to look at differences in gene correlation across two conditions. In short they (0) convert each pathway into a graph with edges between genes. (1) measure differences in correlation between two conditions, (2) rank edges. (3) apply a weighted Kolmogorov-Smirnov statistic (like GSEA) in each pathway.</p>
+<p>They build out one big graph from all the databases they use. For a given sample they take the subgraph induced by observed genes. They test for changes in correlation using what they call edgescore, the difference in mutual information across all samples and mutual information in control samples.</p>
+</div>
+<div id="interesting-papers" class="section level2">
+<h2>Interesting papers</h2>
+<p><span class="math inline">\(\mu_k = \frac{1}{|S_k|} \sum_{i \in S_k} t_i\)</span></p>
+<div id="random-set-methods-identify-distinct-aspects-of-the-enrichment-signal-in-gene-set-analysis" class="section level3">
+<h3>RANDOM-SET METHODS IDENTIFY DISTINCT ASPECTS OF THE ENRICHMENT SIGNAL IN GENE-SET ANALYSIS</h3>
+<p>Fisher’s exact test is a “random set” method. Conditioned on the number of successes/failures in the whole population, you generate a null distribution for <span class="math inline">\(k\)</span> successes in <span class="math inline">\(m\)</span> trials by sampling <span class="math inline">\(m\)</span> individuals w/o replacement from the larger population and counting the number of successes.</p>
+<p>You can write this <span class="math inline">\(\sum_{i\in S} t_i\)</span> where <span class="math inline">\(S\)</span> is a random subset of the population and <span class="math inline">\(t_i\)</span> indicates if that individual is a success or failure. This paper extends this idea by letting <span class="math inline">\(t_i\)</span> be and arbitrary statistic. Then they argue situations that you can compute the first two moments, and make a normal approximation. This is useful because you can normalize the enrichment scores into z-scores. Without this normalization the null distribution is different for different <span class="math inline">\(|S|\)</span>.</p>
+<p>If <span class="math inline">\(t_i\)</span> are binary you get back Fishers exact test. If <span class="math inline">\(t_i\)</span> are ranks you get a rank sum test. Well, sort of. They also add the normality assumption which would break down for small gene sets?</p>
+<p>They compare the performance of two test statistics <span class="math inline">\(\bar X_{ave} = \frac{1}{m} \sum_{i \in S} t_i\)</span> and <span class="math inline">\(\bar X_{ave} = \frac{1}{m} \sum_{i \in S} I(t_i &gt; k)}\)</span>. They show that the averaging and selection tests perform better in different domains. The relative performance depends on set size, effect size, proportion of enriched genes.</p>
+<p>Specifically <span class="math inline">\(\pi\)</span> and <span class="math inline">\(\pi_S\)</span> are the proportion of differentially expressed genes in bacgkround and gene set <span class="math inline">\(S\)</span>. <span class="math inline">\(t_i \sim \mathcal N (\delta I_i, 1)\)</span> where <span class="math inline">\(\delta\)</span> is the effect size and <span class="math inline">\(I_i\)</span> is an indicator of differential expression status.</p>
+<p>Finally, they outline a mutlivariate testing approach. Restricting to moderately large gene sets the scores across gene sets are approximately multivariate normal. TODO: Go back and understand what they’re proposing here better.</p>
+</div>
+<div id="discovering-statistically-significant-pathways-in-expression-profiling-studies" class="section level3">
+<h3>Discovering statistically significant pathways in expression profiling studies</h3>
+<p>Paper by Tian et. al. Basically they advocate taking the average of t-statistics They provide a permutation strategy that reflect competitive and self-contained hypothesis tests. They also argue for the rescaling of these statistics because the null distribution for different gene sets are different. They point out an inconsitency in GSEA (the test is competitive, but their permutation strategy is motivated by self-contained test).</p>
+<p>Many methods fail to account for correlation among genes. Highly correlated genes might tend to pass/not pass inclusion criteria as a group. If we are generating a ranked list, highly correlated genes will be ranked similarly. Imagine a set of genes that are not at all associated with a phenotype. Suppose those genes are partitioned into gene sets, where genes within a gene set are correlated. Genes within a gene set will tend to rank together. And one of the gene sets will happen to be ranked near the top.</p>
+<p><span class="math inline">\(Q_1\)</span> The genes in a gene set show the same patteron of associations with the phenotype compared with the rest of the genes. (competitive)</p>
+<p><span class="math inline">\(Q_2\)</span> The gene set does not contain any genes whose expression levels are associated with the phenotype of interest (self-contained)</p>
+<p>Tian et al. say GSEA generates the null distribution of ES by permuting phenotypes which implicitly assumes a self-contained null <span class="math inline">\(Q_2\)</span>. However, GSEA is a competitive test.</p>
+<p>They propose two tests for <span class="math inline">\(Q_1\)</span> and <span class="math inline">\(Q_2\)</span>. For <span class="math inline">\(Q_1\)</span> they use <span class="math inline">\(T_k\)</span> which is the average t-statistic for gene set <span class="math inline">\(k\)</span>. They generate a null distribution for the tuple <span class="math inline">\(\left(T_1, \dots T_K\right)\)</span> by permuting genes and recomputing <span class="math inline">\(T_i\)</span>. The statistics are not immediately comparable so they do some some normalization of the test statistics. If the null distribution is something like an elipse that gets rescaled to look like a ball.</p>
+<p><span class="math inline">\(E_k = T_k\)</span> by the generate the null a different way.</p>
+</div>
+<div id="analyzing-gene-expression-data-in-terms-of-gene-sets-methodological-issues" class="section level3">
+<h3>Analyzing gene expression data in terms of gene sets: methodological issues</h3>
+<p>This paper makes a distinction between competitive and non self-contained tests. Let <span class="math inline">\(I\)</span> be the gene list of interest, <span class="math inline">\(G\)</span> the set of background genes and <span class="math inline">\(\mathcal S = \{S_i\}_{i=1}^p\)</span> a set of gene sets. For some gene set <span class="math inline">\(S \in \mathcal S\)</span> They consider differential expression testing so they phrase the competitive and null hypothesis tests as</p>
+<p><span class="math display">\[
+H_0^{comp}: \text{The genes in}\; S \; \text{are not differentially expressed more often then}\; S^C
+\]</span> <span class="math display">\[
+H_0^{self}: \text{No genes in }\; S \; \text{are differentially expressed}
+\]</span></p>
+<p>In words, the competitive test is asking “Is this gene set more interesting than the others”. The self-contained test is asking “Is there anything interesting in this gene sets”.</p>
+<p>The authors seem to prefer the self contained test. They argue they are more powerful because competitive tests get penalized by how interesting the background set it. Also self contained tests agree with gene level tests when you consider singleton gene sets. I am not really convinced. I think a lot of times you might have lots of interesting genes and return lots of gene sets with self contained testing.</p>
+<p>Most tests that uses a contingency table is competitive by nature, they ask do we see more hits for the gene set in <span class="math inline">\(I\)</span> compared to <span class="math inline">\(G \setminus I\)</span>. Answering this question depends on the choice of background as well. The background may contain interesting genes as well, just not belonging to <span class="math inline">\(S\)</span>.</p>
+<p>The authors propose a 2x2 test that is self contained. They generate a null distribution of contingency tables by permuting samples, recomputing p values, and filling the table based on a p-value cutoff. This permutation strategy corresponds to the self contained test.</p>
+</div>
+</div>
+<div id="thoughts" class="section level2">
+<h2>Thoughts</h2>
+<div id="relating-ora-methods-to-ranked-list-mehtods-and-gene-level-statistics." class="section level3">
+<h3>Relating ORA methods to ranked list mehtods and gene level statistics.</h3>
+<p>In many setting where ORA is applied the gene lists are derived from gene level statistics where a cutoff is applied. How much information do we lose when we binarize this data?</p>
+<p>GORILLA takes ranked lists and computes hypergeometric statistics for each possible cutoff. They can compute and exact p-value for this statistic.</p>
+<p>Another way of looking at it is treating the binary indicator <span class="math inline">\(z_i\)</span> for gene <span class="math inline">\(i\)</span> as the gene level statistic. Then there should be a straightforward comparison to averaging methods.</p>
+</div>
+<div id="on-the-choice-of-bacgkround-and-gene-sets" class="section level3">
+<h3>On the choice of bacgkround and gene sets</h3>
+<p><span class="math inline">\(B\)</span> is the background set of genes. <span class="math inline">\(\tilde S = \cup_{i=1}^p S_i\)</span>. It should be that <span class="math inline">\(\tilde S \subset B\)</span>. Otherwise there are genes in <span class="math inline">\(\tilde S\)</span> that can never be included in <span class="math inline">\(I\)</span>. But what should <span class="math inline">\(B\)</span> be? Any gene, genes measured in the experiment</p>
+<p><strong><em>WebGestaltR</em></strong> uses <span class="math inline">\(B = B \cap \tilde S\)</span>. This makes the test of each gene set explicitly about the relative enrichment compared to other gene sets tested. In the extreme case where <span class="math inline">\(\mathcal S = \{S_1\}\)</span> the p value for gene set <span class="math inline">\(S_1\)</span> will be fixed.</p>
+<p><strong><em>logistic SuSiE</em></strong> One of the appeals of applying logistic SuSiE to GSEA is that it competes different gene sets against eachother. This is a bit different from the “gene set vs compliment” competition described in the competitive test scenario. I believe the intercept in logistic SuSiE should capture the background rate of genes getting included in the test. Then logistic SuSiE should want to</p>
+</div>
+<div id="independence-assumption-of-genes" class="section level3">
+<h3>Independence assumption of genes</h3>
+<p>Gene sets can contain functionally related genes, and functionally related genes can have correlated expression. If you consider a typical scenario where the researcher does some gene level testing and selects interesting genes based on a p-value threshold, correlated gene expression will yield correlated p-values. When you go to construct your contingency table, each gene is not getting assigned to a cell independently. A test like the hypergeometric test can be anti-conservative.</p>
+<p>Can you address this sort of issue by scaling down your contingency table? That instead of counting the total number of genes that land in a cell of the table count the effective number of genes. E.g if you have a gene set that consists of perfectly correlated genes you’re better off thinking of it as a gene set of size 1. In a gene list of size <span class="math inline">\(m\)</span> with <span class="math inline">\(p\)</span> genes in the gene set you’d consider the table with <span class="math inline">\(1\)</span> gene in set and <span class="math inline">\(m-p-1\)</span> genes out of set.</p>
+<p>Newton et. al suggest rescaling their z-scores to reflect redundant probes in microarray experiments. They argue when there is redundancy the mean of their zscore will not change but the variance will be underestimated.</p>
+</div>
+</div>
+<div id="how-to-evaluate-performance" class="section level2">
+<h2>How to evaluate performance</h2>
+<div id="simulations" class="section level3">
+<h3>Simulations</h3>
+<p>Lots of papers use simulated studies to evaluate performance</p>
+</div>
+<div id="enrichr-tf-knockout-experiments" class="section level3">
+<h3>EnrichR TF knockout experiments</h3>
+<p>Different papers have taken different evaluation approaches to compare GSEA methods. Broadly there are simulation analysis and analysis of real data with a known</p>
+<p>Enrichr benchmarked their methods with 489 knockdown, knockout, and/or overexpression experimentstargetting Transcription Factors. I think this is supposed to provide a gold/silver standard because they known the proteins that interact with each TF?</p>
+<p>“we processed 489 experiments that genetically perturbed (knockdown, knockout or over- expression) transcript factors (TFs) from 293 studies avail- able from GEO. We identified the differentially expressed genes from these studies using the Characteristic Direction (CD) method (31). We then performed enrichment analy- sis against the ChIP-X enrichment analysis (ChEA) gene set library, ranking TFs with the different scoring methods (32). The hypothesis behind this benchmarking idea is that genes that are differentially expressed after genetic pertur- bations of a TF are enriched for the targets of the TF as de- termined by ChIP-seq regardless of cell type, mammalian organism or microarray platform. We then find the ranks of the perturbed TFs for each enrichment analysis scoring methods and plot their cumulative distributions. Our results demonstrate that the combined score and the Z-score meth- ods recover more of the ‘correct’ terms compared with the other methods we tested (Figure 1A). This result is consis- tent with our results from 2013, presented in the original Enrichr publication.”</p>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
