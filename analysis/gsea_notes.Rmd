@@ -1,0 +1,170 @@
+---
+title: "gsea_notes"
+author: "karltayeb"
+date: "2021-02-07"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Summary
+
+Below are some notes I jotted down while reading and exploring GSEA options.
+
+
+## Web tools
+
+There are a number of online resources for performing GSEA that accept gene lists, ordered gene lists, and occassionally gene level statistics
+
+***WebGestalt*** support GSEA and ORA, accepting gene-level statistics or gene lists. Analysis is performed for each (gene list, gene set) seperately and results are summarized. They deal with redundancy in two ways. First, they have simplified gene sets that remove redundancies (TODO: describe how they do that). They use GOSlims, which are special subsets of GO to help summarize results. Second, they do post-hoc reduce redundancy with one of two methods: affinity propagation and weighted set cover. The paper is a bit vague, but they use the Jaccard index as a measure of similarity (between gene sets, presumably) + significance of each test to return a set of significant gene sets.
+
+For ORA they use a background of $B \cap \tilde S$ where $B$ is a user provided background and $\tilde S$ is the set of genes in the gene set. They use a hypergeometric test.
+
+***DAVID*** Over representation analysis using EASE score. This is just Fisher's exact test with a modified contingency table: they decrement (in pathway, in gene list) by a constant and add it back to (in pathway, not in gene list). This makes EASE score more conservative compared to Fisher's exact test. Results are reported for all tested gene sets, with a pvalue, Bonferonni, Benjamini Hochberg, and FDR via "adaptive linear step=up adjusted p-values for appproximate control of FDR". They also cluster the results.
+
+DAVID provides a "Functional Annotation Clustering" that reports clusters of annotations. Each cluster has an associated enrichment score which gives a cluster level estimate of enrichment. kappa statistics are computed for pairs of annotations, to compute the degree of common genes between two annotations (using the union of genes in both, I guess), and fuzzy heuristic clustering is used to get groups of annotations. The group enrichment score is the geometric mean of pvalues of its members, reported on a -log scale.
+
+In principle I like the idea of clustering related annotations better than the approach taken by WebGestalt, which is to report a "representative member". Different related pathways might be more ore less meaningful/insightful to each practitioner so giving a list of related gene/sets annotations seems preferable.
+
+
+***GeneCodis*** The main idea of GeneCodis is that even if large gene sets are not significant (because they contain a lot of potentially not relevant genes) the intersection of gene sets can be significant. They take a gene annotation database and find all combinations of annotations present in at least $x$ genes, where $x$ is user specified. They implement a hypergeometric and $\chi^2$ test of independence, then adjust for multiple corrections using standard methods for controlling FDR. They also offer a simulation based correction (randomly draw a gene lists from background, construct annotation lists, compute p-values, to get empirical null (for each combination of gene-sets or overall? unclear)).
+
+Currently Gencodis v4 is up and running. In V3 they introduced a post-analysis summarization called GTLinker which "executes several filtering and clustering steps to eliminate redundant and non-informative terms and produces genes and annotations grouped in modules (metagroups). These metagroups, which are supposed to be functionally coherent, absorb the redundancy of the original significant terms and are ranked by their significance and coherence."
+
+They only allow you to use at most 3 annotation sources (e.g GO, KEGG, Wikipathways). Their web interface is clunky. In the online report I did not find the metagroups promised in the GenCodis v3 paper. Perhaps they stopped supporting this feature?
+
+***MetaScape*** They accept multiple lists of genes
+
+***Enrichr*** Offers a wide variety of gene set libraries, and a number of tests: proportion test, z-score and combined score, ORA, Jaccard distance.
+## Other Methods
+
+***GOStats*** R package implementing hypergeometric test with an interface that makes it easy to specifiy gene sets, background genes, cutoffs, etc. They offer a "conditional method" to deal with nested terms. GO is arranged in a  hierarchy so $S_1 \subset S_2 \subset S_3 \subset \dots$. They test all the leaves first. If the enrichment is significant those genes are removed from all parents before testing the parents. This helps deal with redundancy, since the same gene won't be in two significant gene sets but it is specific to GO and other nested annotations. 
+
+The authors, Jiang and Gentleman, also suggest performing GSEA on $A \setminus B$, $A \cap B$ and $B\setminus A$ separately for gene when sets $A$ and $B$ are both significant and have "significant overlap" to attribute relevance to one gene sets, the other, or both. At first glance this seems complicated when you have multiple overlapping gene sets-- do you  do GSEA on each part of the Venn diagram?
+
+
+## Methods posing GSEA as regression 
+
+***gerr*** The authors use elastic net ($L_1 + L_2$) regress binary vector of gene list membership on binary matrix of gene set membership. This is the one paper I saw that was really similar in concept using a sparse regression on gene sets to reduce redundancy.
+
+***LRpath***  For $y_S$ a binary indicator of membership in gene set $S$. and $x$ a measure of a genes importance they perform a logistic regression $y \sim x$. Do the odds of being a member of the gene set vary with $x$? Variants of this model have been proposed including covariates to account for different biases (e.g. gene length bias in differential expression analysis). Perhaps you could also model correlation among genes.
+
+I think you can relate this approach to tests on contingency tables. Imagine $x$ binary indicator of membership in gene list. $y \sim Binomial(\pi)$ and $\log\frac{\pi}{1 - \pi} = \beta_0 + \beta_1 x$. If we fit this model on all observed genes $\beta_0$ reflects the proportion of genes in the list in background and $\beta_0 + \beta_1$ the proportion of genes in the gene set.
+
+
+## Other methods
+
+***SetRank*** Set rank operationalizes the suggestion from Jiang and Gentleman. They do GSEA on each set seperately. Then they construct a graph on gene sets with different edges indicating the outcome of the pairwise analysis. Differemt edges represent (1) subset relationships, (2) scenarios where one set is significant and the other is not after removing the intersection, (3) scenarios where the intersection is the only significant section. They employ an algorithm to prune their graph of likely false positives (arrows pointing away). Then, they use page rank on the resulting graph. Overall this seemed clunky to me.
+
+***GORILLA*** Given a *ranked list* of genes it computes the minimum hypergeometric statistic by taking the minimum p value of the hypergeometric test across all possible thresholds. Assuming a null where all possible bi-partitions of the gene set are equally likely, they can compute an exact p value. I thought this method was interesting because it is threshold free like GSEA, but doesn't rely on permutation testing to get a p-value. I have a vague sense that the permutation strategy proposed for GSEA isn't perfect.
+
+How well does the best partition of the ranked list perform compared to GSEA? I think better understanding this will help us understand how much information we lose when going from ranked genes lists to unordered gene lists.
+
+***CAMERA***
+
+***PAGE***
+
+***GSEA***
+
+***ESEA*** "Edge set enrichment analysis". GSEA and other methods are "node centric". Don't account for the relationships between genes in genes-ests. The core idea is to look at differences in gene correlation across two conditions. In short they (0) convert each pathway into a graph with edges between genes. (1) measure differences in correlation between two conditions, (2) rank edges. (3) apply a weighted Kolmogorov-Smirnov statistic (like GSEA) in each pathway.
+
+They build out one big graph from all the databases they use. For a given sample they take the subgraph induced by observed genes. They test for changes in correlation using what they call edgescore, the difference in mutual information across all samples and mutual information in control samples.
+
+
+## Interesting papers
+
+$\mu_k = \frac{1}{|S_k|} \sum_{i \in S_k} t_i$
+
+### RANDOM-SET METHODS IDENTIFY DISTINCT ASPECTS OF THE ENRICHMENT SIGNAL IN GENE-SET ANALYSIS
+
+Fisher's exact test is a "random set" method. Conditioned on the number of successes/failures in the whole population, you generate a null distribution for $k$ successes in $m$ trials by sampling $m$ individuals w/o replacement from the larger population and counting the number of successes.
+
+You can write this $\sum_{i\in S} t_i$ where $S$ is a random subset of the population and $t_i$ indicates if that individual is a success or failure. This paper extends this idea by letting $t_i$ be and arbitrary statistic. Then they argue situations that you can compute the first two moments, and make a normal approximation. This is useful because you can normalize the enrichment scores into z-scores. Without this normalization the null distribution is different for different $|S|$.
+
+If $t_i$ are binary you get back Fishers exact test. If $t_i$ are ranks you get a rank sum test. Well, sort of. They also add the normality assumption which would break down for small gene sets?
+
+They compare the performance of two test statistics $\bar X_{ave} = \frac{1}{m} \sum_{i \in S} t_i$ and $\bar X_{ave} = \frac{1}{m} \sum_{i \in S} I(t_i > k)}$. They show that the averaging and selection tests perform better in different domains. The relative performance depends on set size, effect size, proportion of enriched genes.
+
+Specifically $\pi$ and $\pi_S$ are the proportion of differentially expressed genes in bacgkround and gene set $S$. $t_i \sim \mathcal N (\delta I_i, 1)$ where $\delta$ is the effect size and $I_i$ is an indicator of differential expression status.
+
+Finally, they outline a mutlivariate testing approach. Restricting to moderately large gene sets the scores across gene sets are approximately multivariate normal. TODO: Go back and understand what they're proposing here better.
+
+### Discovering statistically significant pathways in expression profiling studies
+
+Paper by Tian et. al. Basically they advocate taking the average of t-statistics They provide a permutation strategy that reflect competitive and self-contained hypothesis tests. They also argue for the rescaling of these statistics because the null distribution for different gene sets are different. They point out an inconsitency in GSEA (the test is competitive, but their permutation strategy is motivated by self-contained test).
+
+Many methods fail to account for correlation among genes. Highly correlated genes might tend to pass/not pass inclusion criteria as a group. If we are generating a ranked list, highly correlated genes will be ranked similarly. Imagine a set of genes that are not at all associated with a phenotype. Suppose those genes are partitioned into gene sets, where genes within a gene set are correlated. Genes within a gene set will tend to rank together. And one of the gene sets will happen to be ranked near the top.
+
+$Q_1$ The genes in a gene set show the same patteron of associations with the phenotype compared with the rest of the genes. (competitive)
+
+$Q_2$ The gene set does not contain any genes whose expression levels are associated with the phenotype of interest (self-contained)
+
+Tian et al. say GSEA generates the null distribution of ES by permuting phenotypes which implicitly assumes a self-contained null $Q_2$. However, GSEA is a competitive test.
+
+They propose two tests for $Q_1$ and $Q_2$. For $Q_1$ they use $T_k$ which is the average t-statistic for gene set $k$. They generate a null distribution for the tuple $\left(T_1, \dots T_K\right)$ by permuting genes and recomputing $T_i$. The statistics are not immediately comparable so they do some some normalization of the test statistics. If the null distribution is something like an elipse that gets rescaled to look like a ball.
+
+$E_k = T_k$ by the generate the null a different way. 
+
+### Analyzing gene expression data in terms of gene sets: methodological issues
+
+This paper makes a distinction between competitive and non self-contained tests. Let $I$ be the gene list of interest, $G$ the set of background genes and $\mathcal S = \{S_i\}_{i=1}^p$ a set of gene sets. For some gene set $S \in \mathcal S$ They consider differential expression testing so they phrase the competitive and null hypothesis tests as
+
+$$
+H_0^{comp}: \text{The genes in}\; S \; \text{are not differentially expressed more often then}\; S^C
+$$
+$$
+H_0^{self}: \text{No genes in }\; S \; \text{are differentially expressed}
+$$
+
+In words, the competitive test is asking "Is this gene set more interesting than the others". The self-contained test is asking "Is there anything interesting in this gene sets". 
+
+The authors seem to prefer the self contained test. They argue they are more powerful because competitive tests get penalized by how interesting the background set it. Also self contained tests agree with gene level tests when you consider singleton gene sets. I am not really convinced. I think a lot of times you might have lots of interesting genes and return lots of gene sets with self contained testing.
+
+Most tests that uses a contingency table is competitive by nature, they ask do we see more hits for the gene set in $I$ compared to $G \setminus I$. Answering this question depends on the choice of background as well. The background may contain interesting genes as well, just not belonging to $S$.
+
+The authors propose a 2x2 test that is self contained. They generate a null distribution of contingency tables by permuting samples, recomputing p values, and filling the table based on a p-value cutoff. This permutation strategy corresponds to the self contained test.
+
+## Thoughts 
+
+### Relating ORA methods to ranked list mehtods and gene level statistics.
+
+In many setting where ORA is applied the gene lists are derived from gene level statistics where a cutoff is applied. How much information do we lose when we binarize this data?
+
+GORILLA takes ranked lists and computes hypergeometric statistics for each possible cutoff. They can compute and exact p-value for this statistic.
+
+Another way of looking at it is treating the binary indicator $z_i$ for gene $i$ as the gene level statistic. Then there should be a straightforward comparison to averaging methods.
+
+### On the choice of bacgkround and gene sets
+
+$B$ is the background set of genes. 
+$\tilde S = \cup_{i=1}^p S_i$. It should be that $\tilde S \subset B$. Otherwise there are genes in $\tilde S$ that can never be included in $I$. But what should $B$ be? Any gene, genes measured in the experiment
+
+***WebGestaltR*** uses $B = B \cap \tilde S$. This makes the test of each gene set explicitly about the relative enrichment compared to other gene sets tested. In the extreme case where $\mathcal S = \{S_1\}$ the p value for gene set $S_1$ will be fixed.
+
+***logistic SuSiE*** One of the appeals of applying logistic SuSiE to GSEA is that it competes different gene sets against eachother. This is a bit different from the "gene set vs compliment" competition described in the competitive test scenario. I believe the intercept in logistic SuSiE should capture the background rate of genes getting included in the test. Then logistic SuSiE should want to 
+
+### Independence assumption of genes
+
+Gene sets can contain functionally related  genes, and functionally related genes can have correlated expression. If you consider a typical scenario where the researcher does some gene level testing and selects interesting genes based on a p-value threshold, correlated gene expression will yield correlated p-values. When you go to construct your contingency table, each gene is not getting assigned to a cell independently. A test like the hypergeometric test can be anti-conservative.
+
+Can you address this sort of issue by scaling down your contingency table? That instead of counting the total number of genes that land in a cell of the table count the effective number of genes. E.g if you have a gene set that consists of perfectly correlated genes you're better off thinking of it as a gene set of size 1. In a gene list of size $m$ with $p$ genes in the gene set you'd consider the table with $1$ gene in set and $m-p-1$ genes out of set.
+
+Newton et. al suggest rescaling their z-scores to reflect redundant probes in microarray experiments. They argue when there is redundancy the mean of their zscore will not change but the variance will be underestimated.
+
+## How to evaluate performance
+
+### Simulations
+
+Lots of papers use simulated studies to evaluate performance
+
+### EnrichR TF knockout experiments
+
+Different papers have taken different evaluation approaches to compare GSEA methods. Broadly there are simulation analysis and analysis of real data with a known
+
+Enrichr benchmarked their methods with 489 knockdown, knockout, and/or overexpression experimentstargetting Transcription Factors. I think this is supposed to provide a gold/silver standard because they known the proteins that interact with each TF?
+
+"we processed 489 experiments that genetically perturbed (knockdown, knockout or over- expression) transcript factors (TFs) from 293 studies avail- able from GEO. We identified the differentially expressed genes from these studies using the Characteristic Direction (CD) method (31). We then performed enrichment analy- sis against the ChIP-X enrichment analysis (ChEA) gene set library, ranking TFs with the different scoring methods (32). The hypothesis behind this benchmarking idea is that genes that are differentially expressed after genetic pertur- bations of a TF are enriched for the targets of the TF as de- termined by ChIP-seq regardless of cell type, mammalian organism or microarray platform. We then find the ranks of the perturbed TFs for each enrichment analysis scoring methods and plot their cumulative distributions. Our results demonstrate that the combined score and the Z-score meth- ods recover more of the ‘correct’ terms compared with the other methods we tested (Figure 1A). This result is consis- tent with our results from 2013, presented in the original Enrichr publication."
+
+
+
+
