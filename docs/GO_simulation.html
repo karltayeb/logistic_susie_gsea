@@ -415,7 +415,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-02-15
+<strong>Last updated:</strong> 2021-02-16
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -515,16 +515,16 @@ null_simulation
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong4b8c571"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 4b8c571 </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatreedc388e70084a383fda0fc51a167a6d1fda601014targetblankdc388e7a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/dc388e70084a383fda0fc51a167a6d1fda601014" target="_blank">dc388e7</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrong4b8c571" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatreedc388e70084a383fda0fc51a167a6d1fda601014targetblankdc388e7a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version 4b8c571. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/dc388e70084a383fda0fc51a167a6d1fda601014" target="_blank">dc388e7</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -591,7 +591,41 @@ Message
 Rmd
 </td>
 <td>
-4b8c571
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/dc388e70084a383fda0fc51a167a6d1fda601014/analysis/GO_simulation.Rmd" target="_blank">dc388e7</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-16
+</td>
+<td>
+wflow_publish(“analysis/GO_simulation.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/karltayeb/logistic_susie_gsea/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/GO_simulation.html" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/4b8c57125767ab652eecb8f6ccdc1d683d9d248f/analysis/GO_simulation.Rmd" target="_blank">4b8c571</a>
 </td>
 <td>
 karltayeb
@@ -678,7 +712,7 @@ rownames(X_mat) &lt;- X$gene</code></pre>
 </div>
 <div id="simulation-generator" class="section level3">
 <h3>Simulation Generator</h3>
-<p>The simulation here are simple: There will be a set of <code>L</code> <em>active</em> gene sets whose genes are observed with log odds controlled by parameter <code>active.logit</code>. All other genes will be observed with log odds controlled by parameter <code>background.logit</code>. <span class="math inline">\(X\)</span> is an <span class="math inline">\(n \times p\)</span> binary matrix indicating membership of genes in gene clusters For <span class="math inline">\(n\)</span> genes and <span class="math inline">\(p\)</span> gene sets.</p>
+<p>The simulation here are simple: There will be a set of <code>L</code> <em>active</em> gene sets whose genes are observed with probability <span class="math inline">\(\pi\)</span> with the parameter <code>active.logit</code> equal to <span class="math inline">\(\log\frac{pi}{1-pi}\)</span>. All other genes will be observed with probability <span class="math inline">\(\pi_0\)</span> with log odds controlled by parameter <code>background.logit</code>. <span class="math inline">\(X\)</span> is an <span class="math inline">\(n \times p\)</span> binary matrix indicating membership of genes in gene clusters For <span class="math inline">\(n\)</span> genes and <span class="math inline">\(p\)</span> gene sets.</p>
 <pre class="r"><code>logit2prob &lt;- function(logit){
   odds &lt;- exp(logit)
   prob &lt;- odds / (1 + odds)
@@ -856,58 +890,107 @@ run.ora.rep.cached &lt;- function(sim.rep, file=NULL, recompute=F){
   }
   return(ora.result)
 }</code></pre>
-<pre class="r"><code>sim &lt;- sim.rep[1,]
-referenceGene &lt;- rownames(sim$X)
-geneSets &lt;- colnames(sim$X)
-
-interestGene = referenceGene[sim$Y[, 1] == 1]
-f = length(interestGene) / length(referenceGene)
-ORA &lt;- geneSet %&gt;% 
-  group_by(geneSet) %&gt;% 
-  summarise(
-    size = length(gene),
-    n.interestGene=length(interestGene),
-    n.referenceGene = length(referenceGene),
-    overlap = sum(gene %in% interestGene),
-    expect = (size * f),
-    enrichmentRatio = overlap/expect) 
-
-ORA &lt;- ORA %&gt;%
-  mutate(
-    active = (geneSet %in% geneSets[sim$active]),
-    pValue=1-phyper(overlap - 1, n.interestGene, n.referenceGene - n.interestGene, size, lower.tail=TRUE, log.p=FALSE),
-    FDR = p.adjust(pValue, method = &#39;fdr&#39;)
-  ) %&gt;%
-  arrange(desc(overlap))</code></pre>
 </div>
 </div>
 <div id="how-do-the-gene-sets-look" class="section level2">
 <h2>How do the gene sets look</h2>
-<pre class="r"><code>hist(colSums(X_mat), breaks = seq(0, 500, by=10), main = &#39;Gene Set Sizes&#39;)</code></pre>
+<pre class="r"><code>par(mfrow=c(1,2))
+
+#hist(colSums(X_mat), breaks = seq(0, 500, by=10), main = &#39;Gene Set Sizes&#39;)
+#hist(rowSums(X_mat), breaks = seq(0, 200, by=1), xlim = c(0, 100), main=&#39;Gene Sets per Gene&#39;)
+
+hist(colSums(X_mat), main = &#39;Gene Set Sizes&#39;)
+hist(rowSums(X_mat), main=&#39;Gene Sets per Gene&#39;)</code></pre>
 <p><img src="figure/GO_simulation.Rmd/peek.gene.sets-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>hist(rowSums(X_mat), breaks = seq(0, 200, by=1), xlim = c(0, 100), main=&#39;Gene Sets per Gene&#39;)</code></pre>
-<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>hist(colSums(X_mat), main = &#39;Gene Set Sizes&#39;)</code></pre>
-<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-3.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>hist(rowSums(X_mat), main=&#39;Gene Sets per Gene&#39;)</code></pre>
-<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-4.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>X_mat_trunc &lt;- X_mat[, (colSums(X_mat) &gt; 10 &amp; colSums(X_mat) &lt; 5000)]
-hist(colSums(X_mat_trunc), main = &#39;Gene Set Sizes&#39;)</code></pre>
-<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-5.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>hist(rowSums(X_mat_trunc), main=&#39;Gene Sets per Gene&#39;)</code></pre>
-<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-peek.gene.sets-1">
+Past versions of peek.gene.sets-1.png
+</button>
+</p>
+<div id="fig-peek.gene.sets-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/peek.gene.sets-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>X_mat_sp &lt;- Matrix::Matrix(X_mat, sparse = T)
 XX &lt;- t(X_mat_sp) %*% X_mat_sp
 image(XX)</code></pre>
-<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-7.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/GO_simulation.Rmd/peek.gene.sets-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-peek.gene.sets-2">
+Past versions of peek.gene.sets-2.png
+</button>
+</p>
+<div id="fig-peek.gene.sets-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/peek.gene.sets-2.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Gene set sizes vary considerably, but typical seems around 20-100. Many genes participate in multiple gene set.</p>
 <p>First we do a simulation where there are no active gene sets. To start we use <code>background.logit = -3</code> which correspond approximately with doing gene level testing and running GSEA for all genes with <span class="math inline">\(p &lt; 0.05\)</span>.</p>
 </div>
 <div id="simulations-using-go" class="section level2">
 <h2>Simulations using GO</h2>
-<div id="a-null-simulation" class="section level3">
-<h3>A null simulation</h3>
-<p>First we do a simulation with no active gene sets. We set the background probability of a gene being included in the gene list at around <span class="math inline">\(0.05\)</span>. We compare how a hypergeometric test behave.</p>
+<div id="a-null-simulation-l0-pi_0-0.05" class="section level3">
+<h3>A null simulation <span class="math inline">\(L=0\)</span> <span class="math inline">\(\pi_0 = 0.05\)</span></h3>
+<p>First we do a simulation with no active gene sets. We set the background probability of a gene being included in the gene list at around <span class="math inline">\(0.05\)</span>. This is intended to simulate a differential experiment with no deferentially expressed genes and make a gene list of all nominally significant genes.</p>
+<p>We compare how logistic SuSiE and Fisher’s exact test behave.</p>
+<p>Fishers test has slightly deflated p values as seen in the qqplot. We would expect this because the overlap in gene sets makes the tests dependant. In practice Fishers exact test is anti-conservative because of correlation among genes. This highlights a limitation of this simulation.</p>
+<p>We also see that SuSiE tends to have slightly larger PIPs for small gene sets. The proportion of genes in small gene sets observed in our list have higher variance so it makes sense SuSiE would do this when it encounters a small gene set enriched (or depleted) by chance.</p>
 <pre class="r"><code>set.seed(1)
 sim.rep &lt;- generate.sim.data.rep(X=X_mat, L=0, background.logit = -3, inner.rep = 2, outer.rep = 100)
 
@@ -922,32 +1005,142 @@ ora.result %&gt;%
   mutate(geneSetSizeBin = cut(size, include.lowest = T, breaks=quantile(size, probs=seq(0, 1, by=0.1), ))) %&gt;% 
   select(geneSet, geneSetSizeBin, nlog10p) %&gt;%
   ggplot(aes(x=geneSetSizeBin, y=nlog10p)) + geom_boxplot()</code></pre>
-<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>qqman::qq(ora.result$pValue)</code></pre>
-<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>P values are just slightly deflated for hypergeometric p values. I think you would expect this due to overlap, since the tests are not independent. Although this is quite different from what you might see in real data where genes are often correlated. In this case you would expect the test to be anti-conservative.</p>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>susie.result &lt;- susie.result %&gt;% inner_join(geneSetSizes)</code></pre>
 <pre><code>Joining, by = &quot;geneSet&quot;</code></pre>
 <pre class="r"><code>susie.result %&gt;% 
   mutate(geneSetSizeBin = cut(size, include.lowest = T, breaks=quantile(size, probs=seq(0, 1, by=0.1)))) %&gt;% 
   select(geneSet, geneSetSizeBin, pip) %&gt;%
   ggplot(aes(x=geneSetSizeBin, y=log(pip))) + geom_boxplot()</code></pre>
-<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>SuSiE tends to give smaller gene sets slightly larger PIP. This makes sense, it is more likely that a small gene set gets a higher proportion of genes than background by chance. Not a problem with Fisher. Hypergeometric distribution with fewer samples (corresponding with a smaller gene set) have higher variance, and the pvalues reflect that.</p>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/unnamed-chunk-4-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>cset.summary &lt;- compute.cset.sizes(susie.result, alpha=0.95)
 cset.summary %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Good to see that in all the simulations we did not get any cases where logistic SuSiE returns small credible sets.</p>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/unnamed-chunk-5-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>It’s good to see that in all the simulations we did not get any cases where logistic SuSiE returns small credible sets.</p>
 <pre class="r"><code>ora.result %&gt;% 
   mutate(geneSetSizeBin = cut(size, include.lowest = T, breaks=quantile(size, probs=seq(0, 1, by=0.1), ))) %&gt;% 
   select(geneSet, geneSetSizeBin, enrichmentRatio) %&gt;%
   ggplot(aes(x=geneSetSizeBin, y=enrichmentRatio)) + geom_boxplot()</code></pre>
-<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
+Past versions of unnamed-chunk-6-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/unnamed-chunk-6-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Just leaving this here to show that the proportion of genes observed in our gene list is more variable for small gene sets.</p>
 </div>
 <div id="one-active-gene-set" class="section level3">
 <h3>One active gene set</h3>
-<p>Next we simulate one active gene set. Genes in the active gene set will be included in the gene list <code>active.logit = -2</code> with probability <span class="math inline">\(p = 0.12\)</span>. Since the gene set is small relative to the background gene set, most of the genes included in the list are junk.</p>
+<p>Next we simulate one active gene set. Genes in the active gene set will be included in the gene list <span class="math inline">\(\pi_0 = 0.05\)</span> and <span class="math inline">\(\pi = 0.12\)</span>. Since the gene set is small relative to the background gene set, most of the genes included in the list are junk. I think these might be reasonable settings for GSEA in a differential expression experiment– we don’t much have power to detect genes individually but we can detect a change in the gene set.</p>
 <pre class="r"><code>set.seed(1)
 sim.rep &lt;- generate.sim.data.rep(X=X_mat, L=1, background.logit = -3, active.logit = -2, inner.rep = 2, outer.rep = 100)
 
@@ -962,6 +1155,43 @@ plot.fdr.power &lt;- function(df, color){
 }
 ggplot() + plot.fdr.power(susie.result, &#39;SuSiE&#39;) + plot.fdr.power(ora.result, &#39;Hypergeometric&#39;)</code></pre>
 <p><img src="figure/GO_simulation.Rmd/first.sim-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-first.sim-1">
+Past versions of first.sim-1.png
+</button>
+</p>
+<div id="fig-first.sim-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/first.sim-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>So logistic SuSiE PIPs do a better job prioritizing active gene sets then hypergeometric p values.</p>
 <pre class="r"><code>compute.cset.size.single.effect&lt;- function(susie.result, col, alpha=0.95){
   susie.cset &lt;- susie.result %&gt;% 
@@ -996,7 +1226,44 @@ cset.summary &lt;- compute.cset.sizes(susie.result, alpha=0.95)
 
 cset.summary %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/unnamed-chunk-7-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Most of the credible sets with less than 100 are of size 1.</p>
 <pre class="r"><code>susie.result %&gt;% 
   compute.cset.sizes(., alpha=0.95) %&gt;%
@@ -1020,11 +1287,86 @@ p &lt;- &#39;./cache/L5-1.sim.rds&#39;
 susie.result1 &lt;- run.susie.rep.cached(sim.rep, L=1, file=p)
 ggplot() + plot.fdr.power(susie.result, &#39;green&#39;) + plot.fdr.power(ora.result, &#39;blue&#39;)</code></pre>
 <p><img src="figure/GO_simulation.Rmd/L5.sim-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-L5.sim-1">
+Past versions of L5.sim-1.png
+</button>
+</p>
+<div id="fig-L5.sim-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/L5.sim-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>p &lt;- &#39;./cache/L5-5.sim.rds&#39;
 susie.result5 &lt;- run.susie.rep.cached(sim.rep, L=5, file=p)
 
 ggplot() + plot.fdr.power(susie.result1, &#39;SuSiE_L1&#39;) + plot.fdr.power(susie.result5, &#39;SuSiE_L5&#39;) + plot.fdr.power(ora.result, &#39;ORA&#39;) </code></pre>
 <p><img src="figure/GO_simulation.Rmd/L5.sim-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-L5.sim-2">
+Past versions of L5.sim-2.png
+</button>
+</p>
+<div id="fig-L5.sim-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/L5.sim-2.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>When there are multiple active gene sets SuSiE with <code>L=5</code> performs better than SuSiE with <code>L=1</code></p>
 <pre class="r"><code>cset.summary &lt;- compute.cset.sizes(susie.result5, alpha=0.95)
 cset.summary &lt;- susie.result %&gt;% 
   filter(active) %&gt;% 
@@ -1035,12 +1377,13 @@ cset.summary &lt;- susie.result %&gt;%
   left_join(cset.summary)</code></pre>
 <pre><code>Joining, by = c(&quot;inner.rep&quot;, &quot;outer.rep&quot;)
 Joining, by = c(&quot;inner.rep&quot;, &quot;outer.rep&quot;)</code></pre>
-<pre class="r"><code>susie.result1 %&gt;% compute.cset.sizes(., alpha=0.99) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
+<pre class="r"><code>par(mfrow=c(1,2))
+susie.result1 %&gt;% compute.cset.sizes(., alpha=0.95) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>susie.result5 %&gt;% compute.cset.sizes(., alpha=0.99) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>susie.result5 %&gt;% compute.cset.sizes(., alpha=0.95) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-10-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>susie.result1 %&gt;% 
   compute.cset.sizes(., alpha=0.95) %&gt;%
   filter(cset_size &lt; 100) %&gt;% group_by(cset_size) %&gt;%
@@ -1059,11 +1402,17 @@ Joining, by = c(&quot;inner.rep&quot;, &quot;outer.rep&quot;)</code></pre>
 *     &lt;int&gt;                  &lt;dbl&gt;
 1         1                  0.969
 2         2                  1    </code></pre>
+<pre class="r"><code>susie.result1  %&gt;% ggplot(aes(x=pip, after_stat(density), color=active)) + geom_freqpoly()</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>susie.result5  %&gt;% ggplot(aes(x=pip, after_stat(density), color=active)) + geom_freqpoly()</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/GO_simulation.Rmd/unnamed-chunk-11-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Even though many of the active gene sets are prioritized by SuSiE pips, we see that most of them are not in components with small credible sets.</p>
 </div>
-</div>
-<div id="a-simulation-with-varried-bacgkround-enrichment" class="section level2">
-<h2>A simulation with varried bacgkround enrichment</h2>
-<p>Next lets vary the frequency of background genes that make it into the list.</p>
+<div id="a-simulation-with-varried-bacgkround-enrichment" class="section level3">
+<h3>A simulation with varried bacgkround enrichment</h3>
+<p>Next lets vary the frequency of background genes that make it into the list. We vary <span class="math inline">\(\pi_0 = 0.0003\)</span> to <span class="math inline">\(0.12\)</span></p>
 <pre class="r"><code>set.seed(3)
 
 background.logits = seq(-8, -2, by=1)
@@ -1094,6 +1443,43 @@ df &lt;- rbind(
 
 df %&gt;% ggplot() + facet_wrap(facets=vars(background.logit)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
 <p><img src="figure/GO_simulation.Rmd/vary.background.logit-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-vary.background.logit-1">
+Past versions of vary.background.logit-1.png
+</button>
+</p>
+<div id="fig-vary.background.logit-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/vary.background.logit-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>ora.result2 &lt;- ora.result %&gt;% 
   group_by(background.logit) %&gt;%
   arrange(desc(nlog10p), !active) %&gt;%  # when there is a tie,
@@ -1105,8 +1491,46 @@ df &lt;- rbind(
 
 df %&gt;% ggplot() + facet_wrap(facets=vars(background.logit)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
 <p><img src="figure/GO_simulation.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-1">
+Past versions of unnamed-chunk-12-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-12-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/unnamed-chunk-12-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>SuSiE seems to do a better job compared to hypergeometric. Although I think we need to up the simulation size considerably to get a clear picture. <code>-3</code> is the same simulation scenario as the first simulation. Our expectation is that the models should perform best at <code>-8</code> where the observed gene lists are drawn entirely from the active gene set and <code>-2</code>.</p>
 <p>Overall logistic SuSiE seems more robust to increasing background noise. It’s not obvious to me that this should be the case. The intercept term should capture the probability of background genes making it into the list, so if the active gene set is only slightly enriched in the gene list, it would correspond to a pretty small effect size. Perhaps the advantage we are seeing here would go away if we redid the simulation on non-overlapping gene sets.</p>
+</div>
 </div>
 <div id="simulations-with-varying-overlap-among-gene-sets" class="section level2">
 <h2>Simulations with varying overlap among gene sets</h2>
@@ -1153,6 +1577,43 @@ df &lt;- rbind(
 
 df %&gt;% ggplot() + facet_wrap(facets=vars(background.logit)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
 <p><img src="figure/GO_simulation.Rmd/vary.background.logit.no.overlap-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-vary.background.logit.no.overlap-1">
+Past versions of vary.background.logit.no.overlap-1.png
+</button>
+</p>
+<div id="fig-vary.background.logit.no.overlap-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/vary.background.logit.no.overlap-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>When there is no overlap in the gene sets ORA performs virtually the same. So it seems that the improvement we see from ORA to logistic SuSiE has to do with better prioritizing overlapping gene sets.</p>
 </div>
 <div id="null-simulation-increasing-overlap" class="section level3">
@@ -1176,13 +1637,87 @@ ora.result %&gt;%
   ggplot(aes(x=factor(overlap), y=nlog10p)) + geom_boxplot()</code></pre>
 <pre><code>Warning: Removed 28139 rows containing non-finite values (stat_boxplot).</code></pre>
 <p><img src="figure/GO_simulation.Rmd/overlap.sim.null-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overlap.sim.null-1">
+Past versions of overlap.sim.null-1.png
+</button>
+</p>
+<div id="fig-overlap.sim.null-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/overlap.sim.null-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>susie.result %&gt;% 
   ggplot(aes(x=factor(overlap), y=pip)) + geom_boxplot()</code></pre>
 <p><img src="figure/GO_simulation.Rmd/overlap.sim.null-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overlap.sim.null-2">
+Past versions of overlap.sim.null-2.png
+</button>
+</p>
+<div id="fig-overlap.sim.null-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/overlap.sim.null-2.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>This is verifying expected behavior. As the amount of overlap in gene sets increase, SuSiE returns smaller PIPs</p>
 </div>
-<div id="increasing-overlap-pi_0-approxi-0.25-pi-1" class="section level3">
-<h3>Increasing overlap, <span class="math inline">\(\pi_0 \approxi 0.25\)</span>, <span class="math inline">\(\pi = 1\)</span></h3>
+<div id="increasing-overlap-pi_0-approx-0.25-pi-1" class="section level3">
+<h3>Increasing overlap, <span class="math inline">\(\pi_0 \approx 0.25\)</span>, <span class="math inline">\(\pi = 1\)</span></h3>
 <pre class="r"><code>set.seed(10)
 strides &lt;- seq(2, 10, by = 2)
 
@@ -1214,13 +1749,87 @@ df &lt;- rbind(
 
 df %&gt;% ggplot() + facet_wrap(facets=vars(overlap)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
 <p><img src="figure/GO_simulation.Rmd/overlap.sim-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overlap.sim-1">
+Past versions of overlap.sim-1.png
+</button>
+</p>
+<div id="fig-overlap.sim-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/overlap.sim-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>susie.result1 %&gt;% compute.cset.sizes(., alpha=0.99) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="figure/GO_simulation.Rmd/overlap.sim-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overlap.sim-2">
+Past versions of overlap.sim-2.png
+</button>
+</p>
+<div id="fig-overlap.sim-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/overlap.sim-2.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>When the active gene sets is completely included in the gene list both do well. We see that logistic SuSiE does a bit better when there is lots of overlap.</p>
 </div>
-<div id="increasing-overlap-pi_0-approxi-0.12-pi-aprox-0.73" class="section level3">
-<h3>Increasing overlap, <span class="math inline">\(\pi_0 \approxi 0.12\)</span>, <span class="math inline">\(\pi aprox 0.73\)</span></h3>
+<div id="increasing-overlap-pi_0-approx-0.12-pi-aprox-0.73" class="section level3">
+<h3>Increasing overlap, <span class="math inline">\(\pi_0 \approx 0.12\)</span>, <span class="math inline">\(\pi aprox 0.73\)</span></h3>
 <pre class="r"><code>set.seed(10)
 strides &lt;- seq(2, 10, by = 2)
 
@@ -1252,9 +1861,83 @@ df &lt;- rbind(
 
 df %&gt;% ggplot() + facet_wrap(facets=vars(overlap)) + geom_path(aes(x=eFDR, y=power, color=method))</code></pre>
 <p><img src="figure/GO_simulation.Rmd/overlap.sim2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overlap.sim2-1">
+Past versions of overlap.sim2-1.png
+</button>
+</p>
+<div id="fig-overlap.sim2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/overlap.sim2-1.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>susie.result1 %&gt;% compute.cset.sizes(., alpha=0.99) %&gt;% filter(cset_size &lt; 100) %&gt;% ggplot(aes(x=cset_size)) + geom_histogram()</code></pre>
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="figure/GO_simulation.Rmd/overlap.sim2-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-overlap.sim2-2">
+Past versions of overlap.sim2-2.png
+</button>
+</p>
+<div id="fig-overlap.sim2-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/9ec684a1c46b1627389b75184560bae5194e7c8d/docs/figure/GO_simulation.Rmd/overlap.sim2-2.png" target="_blank">9ec684a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-02-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Different parameters to make the simulation a bit more challenging.</p>
 <pre class="r"><code>knitr::knit_exit()</code></pre>
 </div>
