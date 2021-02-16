@@ -62,7 +62,7 @@ rownames(X_mat) <- X$gene
 
 ### Simulation Generator
 
-The simulation here are simple: There will be a set of `L` *active* gene sets whose genes are observed with log odds controlled by parameter `active.logit`. All other genes will be observed with log odds controlled by parameter `background.logit`. $X$ is an $n \times p$ binary matrix indicating membership of genes in gene clusters For $n$ genes and $p$ gene sets.
+The simulation here are simple: There will be a set of `L` *active* gene sets whose genes are observed with probability $\pi$ with the parameter `active.logit` equal to $\log\frac{pi}{1-pi}$. All other genes will be observed with probability $\pi_0$ with log odds controlled by parameter `background.logit`. $X$ is an $n \times p$ binary matrix indicating membership of genes in gene clusters For $n$ genes and $p$ gene sets.
 
 
 ```{r simulations}
@@ -253,47 +253,16 @@ run.ora.rep.cached <- function(sim.rep, file=NULL, recompute=F){
 }
 ```
 
-
-```{r}
-sim <- sim.rep[1,]
-referenceGene <- rownames(sim$X)
-geneSets <- colnames(sim$X)
-
-interestGene = referenceGene[sim$Y[, 1] == 1]
-f = length(interestGene) / length(referenceGene)
-ORA <- geneSet %>% 
-  group_by(geneSet) %>% 
-  summarise(
-    size = length(gene),
-    n.interestGene=length(interestGene),
-    n.referenceGene = length(referenceGene),
-    overlap = sum(gene %in% interestGene),
-    expect = (size * f),
-    enrichmentRatio = overlap/expect) 
-
-ORA <- ORA %>%
-  mutate(
-    active = (geneSet %in% geneSets[sim$active]),
-    pValue=1-phyper(overlap - 1, n.interestGene, n.referenceGene - n.interestGene, size, lower.tail=TRUE, log.p=FALSE),
-    FDR = p.adjust(pValue, method = 'fdr')
-  ) %>%
-  arrange(desc(overlap))
-```
-
 ## How do the gene sets look
 
 ```{r peek.gene.sets}
-hist(colSums(X_mat), breaks = seq(0, 500, by=10), main = 'Gene Set Sizes')
-hist(rowSums(X_mat), breaks = seq(0, 200, by=1), xlim = c(0, 100), main='Gene Sets per Gene')
+par(mfrow=c(1,2))
+
+#hist(colSums(X_mat), breaks = seq(0, 500, by=10), main = 'Gene Set Sizes')
+#hist(rowSums(X_mat), breaks = seq(0, 200, by=1), xlim = c(0, 100), main='Gene Sets per Gene')
 
 hist(colSums(X_mat), main = 'Gene Set Sizes')
 hist(rowSums(X_mat), main='Gene Sets per Gene')
-
-
-X_mat_trunc <- X_mat[, (colSums(X_mat) > 10 & colSums(X_mat) < 5000)]
-hist(colSums(X_mat_trunc), main = 'Gene Set Sizes')
-hist(rowSums(X_mat_trunc), main='Gene Sets per Gene')
-
 
 X_mat_sp <- Matrix::Matrix(X_mat, sparse = T)
 XX <- t(X_mat_sp) %*% X_mat_sp
@@ -307,9 +276,15 @@ First we do a simulation where there are no active gene sets. To start we use `b
 
 ## Simulations using GO
 
-### A null simulation
+### A null simulation $L=0$ $\pi_0 = 0.05$
 
-First we do a simulation with no active gene sets. We set the background probability of a gene being included in the gene list at around $0.05$. We compare how a hypergeometric test behave.
+First we do a simulation with no active gene sets. We set the background probability of a gene being included in the gene list at around $0.05$. This is intended to simulate a differential experiment with no deferentially expressed genes and make a gene list of all nominally significant genes. 
+
+We compare how logistic SuSiE and Fisher's exact test behave. 
+
+Fishers test has slightly deflated p values as seen in the qqplot. We would expect this because the overlap in gene sets makes the tests dependant. In practice Fishers exact test is anti-conservative because of correlation among genes. This highlights a limitation of this simulation.
+
+We also see that SuSiE tends to have slightly larger PIPs for small gene sets. The proportion of genes in small gene sets observed in our list have higher variance so it makes sense SuSiE would do this when it encounters a small gene set enriched (or depleted) by chance.
 
 ```{r null.sim}
 set.seed(1)
@@ -334,8 +309,6 @@ ora.result %>%
 qqman::qq(ora.result$pValue)
 ```
 
-P values are just slightly deflated for hypergeometric p values. I think you would expect this due to overlap, since the tests are not independent. Although this is quite different from what you might see in real data where genes are often correlated. In this case you would expect the test to be anti-conservative.
-
 ```{r}
 susie.result <- susie.result %>% inner_join(geneSetSizes)
 susie.result %>% 
@@ -345,15 +318,13 @@ susie.result %>%
 ```
 
 
-SuSiE tends to give smaller gene sets slightly larger PIP. This makes sense, it is more likely that a small gene set gets a higher proportion of genes than background by chance. Not a problem with Fisher. Hypergeometric distribution with fewer samples (corresponding with a smaller gene set) have higher variance, and the pvalues reflect that.
-
 
 ```{r}
 cset.summary <- compute.cset.sizes(susie.result, alpha=0.95)
 cset.summary %>% ggplot(aes(x=cset_size)) + geom_histogram()
 ```
 
-Good to see that in all the simulations we did not get any cases where logistic SuSiE returns small credible sets.
+It's good to see that in all the simulations we did not get any cases where logistic SuSiE returns small credible sets.
 
 ```{r}
 ora.result %>% 
@@ -362,10 +333,11 @@ ora.result %>%
   ggplot(aes(x=geneSetSizeBin, y=enrichmentRatio)) + geom_boxplot()
 ```
 
+Just leaving this here to show that the proportion of genes observed in our gene list is more variable for small gene sets.
 
 ### One active gene set
 
-Next we simulate one active gene set. Genes in the active gene set will be included in the gene list `active.logit = -2` with probability $p = 0.12$. Since the gene set is small relative to the background gene set, most of the genes included in the list are junk.
+Next we simulate one active gene set. Genes in the active gene set will be included in the gene list $\pi_0 = 0.05$ and $\pi = 0.12$. Since the gene set is small relative to the background gene set, most of the genes included in the list are junk. I think these might be reasonable settings for GSEA in a differential expression experiment-- we don't much have power to detect genes individually but we can detect a change in the gene set.
 
 ```{r first.sim}
 set.seed(1)
@@ -453,6 +425,7 @@ susie.result5 <- run.susie.rep.cached(sim.rep, L=5, file=p)
 ggplot() + plot.fdr.power(susie.result1, 'SuSiE_L1') + plot.fdr.power(susie.result5, 'SuSiE_L5') + plot.fdr.power(ora.result, 'ORA') 
 ```
 
+When there are multiple active gene sets SuSiE with `L=5` performs better than SuSiE with `L=1`
 
 ```{r}
 cset.summary <- compute.cset.sizes(susie.result5, alpha=0.95)
@@ -464,9 +437,11 @@ cset.summary <- susie.result %>%
   summarise(sum(active)) %>% 
   left_join(cset.summary)
 
-susie.result1 %>% compute.cset.sizes(., alpha=0.99) %>% filter(cset_size < 100) %>% ggplot(aes(x=cset_size)) + geom_histogram()
-susie.result5 %>% compute.cset.sizes(., alpha=0.99) %>% filter(cset_size < 100) %>% ggplot(aes(x=cset_size)) + geom_histogram()
+par(mfrow=c(1,2))
+susie.result1 %>% compute.cset.sizes(., alpha=0.95) %>% filter(cset_size < 100) %>% ggplot(aes(x=cset_size)) + geom_histogram()
+susie.result5 %>% compute.cset.sizes(., alpha=0.95) %>% filter(cset_size < 100) %>% ggplot(aes(x=cset_size)) + geom_histogram()
 ```
+
 
 ```{r}
 susie.result1 %>% 
@@ -480,9 +455,18 @@ susie.result5 %>%
   summarise(mean(num_active > 0))
 ```
 
-## A simulation with varried bacgkround enrichment
 
-Next lets vary the frequency of background genes that make it into the list.
+```{r}
+susie.result1  %>% ggplot(aes(x=pip, after_stat(density), color=active)) + geom_freqpoly()
+susie.result5  %>% ggplot(aes(x=pip, after_stat(density), color=active)) + geom_freqpoly()
+```
+
+
+Even though many of the active gene sets are prioritized by SuSiE pips, we see that most of them are not in components with small credible sets.
+
+### A simulation with varried bacgkround enrichment
+
+Next lets vary the frequency of background genes that make it into the list. We vary $\pi_0 = 0.0003$ to $0.12$
 
 ```{r vary.background.logit}
 set.seed(3)
@@ -534,7 +518,7 @@ SuSiE seems to do a better job compared to hypergeometric. Although I think we n
 
 Overall logistic SuSiE seems more robust to increasing background noise. It's not obvious to me that this should be the case. The intercept term should capture the probability of background genes making it into the list, so if the active gene set is only slightly enriched in the gene list, it would correspond to a pretty small effect size. Perhaps the advantage we are seeing here would go away if we redid the simulation on non-overlapping gene sets.
 
-## Simulations with varying  overlap among gene sets
+## Simulations with varying overlap among gene sets
 
 ```{r simple.overlap.sim}
 generate.X.overlap <- function(gs.size, stride, n.genes){
@@ -614,7 +598,7 @@ susie.result %>%
 
 This is verifying expected behavior. As the amount of overlap in gene sets increase, SuSiE returns smaller PIPs
 
-### Increasing overlap, $\pi_0 \approxi 0.25$, $\pi = 1$
+### Increasing overlap, $\pi_0 \approx 0.25$, $\pi = 1$
 
 ```{r overlap.sim}
 set.seed(10)
@@ -653,7 +637,7 @@ susie.result1 %>% compute.cset.sizes(., alpha=0.99) %>% filter(cset_size < 100) 
 
 When the active gene sets is completely included in the gene list both do well. We see that logistic SuSiE does a bit better when there is lots of overlap.
 
-### Increasing overlap, $\pi_0 \approxi 0.12$, $\pi aprox 0.73$
+### Increasing overlap, $\pi_0 \approx 0.12$, $\pi aprox 0.73$
 
 ```{r overlap.sim2}
 set.seed(10)
