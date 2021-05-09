@@ -7,7 +7,23 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Simulation
+# Simulations
+
+## Overview of Analysis
+
+Here we show the results of 3 simple simulations.
+* Single active gene set, gene in gene list iff gene in active gene set
+* Single active gene set: gene set genes are included in gene list according to `active.logit`, background genes included in gene set according to `background.logit`
+* Multiple active gene sets: 5 or 10 active gene sets per simulation. We simulate under an additive model with intercept determined by `background.logit` and with constant effect size parameterized by `active.logit`
+
+We compare to Fisher's exact test, Regularized regression: elastic net, lasso, and sparse Bayesian regression: logistic SuSiE, SuSiE, Mr. Ash (initilized with a lasso prior)
+
+## Summary
+
+SuSiE and logistic SuSiE worked better than Mr. Ash, but that is possible an issue of setting the priors right.
+
+Logistic SuSiE's PIPs are better calibrated that SuSiE. Although this is not surprising
+
 
 ```{r}
 library(targets)
@@ -56,7 +72,6 @@ result %>%
 Elastic net and Fisher's exact test are the only ones that return False positives.
 `mr.ash.lasso` is the only one that misses a few of the gene sets. This is odd because it's initialized with lasso.
 
-
 ### Compare SuSiE with VEB boost implimentation
 
 I found that SuSiE was running slower than `veb.boost` when using larger gene set matrices. This is just a check to demonstrate that the PIPs agree.
@@ -76,7 +91,7 @@ pip.comp %>% unnest(everything()) %>% ggplot(aes(x=susie.pip, y=susie.veb.boost.
 ```
 
 
-# 1 active gene set
+## Single active gene set
 
 Now we simulate one active gene set. The log odds of observing the genes in the active gene set are controlled by `active.logit` and the log odds of observing background genes is controlled by `background.logit`
 
@@ -134,7 +149,6 @@ ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) +
 t <- 0.95
 result %>%
   unnest(scores) %>%
-  mutate(thresh = ifelse(method %in% c('elastic.net', 'lasso'), thresh + t, thresh)) %>%
   filter(near(thresh, t)) %>%
   group_by(method, background.logit, active.logit) %>%
   summarise(
@@ -154,7 +168,37 @@ Mr. Ash is often not reporting any gene sets when `active.logit` is small. We al
 ### Credible Sets
 
 
-#l5/l10 sim
+```{r}
+pattern <- '^l1.sim.score.cs_([^_])*$'
+result <- tar_agg(pattern)
+
+result %>% select(cs_in_causal, n_causal, cs_size, method) %>%
+  unnest(c(cs_in_causal, n_causal, cs_size)) %>%
+  mutate(contains_causal = n_causal > 0) %>%
+  ggplot(aes(x=cs_size, fill=contains_causal)) +
+  geom_histogram(position='dodge') + facet_wrap(vars(method)) + theme(aspect=1.0)
+```
+
+
+Pretty much all of the small credible sets are singleton credible sets.
+
+
+```{r}
+result %>% rowwise() %>% mutate(
+    TP = length(unique(unlist(cs_in_causal[cs_size < 5]))),
+    FN = 1 - TP,
+    FP = sum((n_causal == 0) & (cs_size < 5)),
+    recall = TP / (TP + FN),
+    precision = TP / (TP + FP),
+  ) %>% 
+  select(background.logit, active.logit, method, recall, precision) %>%
+  pivot_longer(c(recall, precision), names_to= 'metric') %>%
+  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
+  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)
+```
+
+
+## Multiple active gene sets
 
 In these simulations we have 5 or 10 active gene sets. SuSiE type meothods are fit with $L=10$. Simulations from a model where log odds are additive, intercept determined by `background.logit`, the log odds of observing a gene are `k * active.logit` where $k$ is the number of active gene sets to which that gene is a member.
 
@@ -175,8 +219,7 @@ ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) +
   facet_grid(vars(active.logit), vars(background.logit))
 ```
 
-We see overall the same trend where SuSiE's curve is better that logistic SuSiE, but it's PIPs are not well calibrated. In all cases logistic SuSiE keeps the proportion of false discoveries low. SuSiE does not. I expect this situation is exacerbated when a gene is in multiple active gene sets, but the simulations with one active gene set show that this is not a complete explaination.
-
+We see overall the same trend where SuSiE's curve is better that logistic SuSiE, but it's PIPs are not well calibrated. In all cases logistic SuSiE keeps the proportion of false discoveries low. SuSiE does not.
 
 ```{r}
 plot.data <- result %>%
@@ -259,22 +302,6 @@ result %>% select(cs_in_causal, n_causal, cs_size, method) %>%
 ```
 
 Just a quick look at which credible sets have active gene sets. Virtually all of the small credible sets are singletons, more of the logistic SuSiE gene sets are false positives.
-
-```{r}
-result %>% rowwise() %>% mutate(
-    TP = sum((n_causal > 0) & (cs_size < 10)),
-    FN = n_active - TP,
-    FP = sum((n_causal == 0) & (cs_size < 10)),
-    recall = TP / (TP + FN),
-    precision = TP / (TP + FP),
-  ) %>% 
-  select(n_active, background.logit, active.logit, method, recall, precision) %>%
-  pivot_longer(c(recall, precision), names_to= 'metric') %>%
-  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
-  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)
-```
-
-Recall values above 1 indicate that multiple credible sets have the same active gene set(s). Let's redo this counting unique active credible sets discovered.
 
 ```{r}
 
