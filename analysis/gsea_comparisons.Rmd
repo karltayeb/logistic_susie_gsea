@@ -1,5 +1,5 @@
 ---
-title: "GSEABenchmark_relevance_analysis"
+title: "GSEA Method comparisons"
 author: "karltayeb"
 date: "2021-04-26"
 output: workflowr::wflow_html
@@ -7,8 +7,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Overview
+We try to replicate some analysis from othe GSEA papers/ GSEA Benchmark papers, and extend them to compare multiple GSEA methods under consideration.
 
+## Overview
 
 ```{r}
 library(targets)

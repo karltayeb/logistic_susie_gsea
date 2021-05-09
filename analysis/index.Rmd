@@ -12,5 +12,9 @@ Welcome to my research website.
 
 First look at logistic SuSiE, with some simulations using GO terms [link](GO_simulation.html)
 
+More simulations [link](simulations.html)
+
+Reproducing results from other gsea papers [link](gsea_comparisons.html)
+
 Notes [link](gsea_notes.html)
 
