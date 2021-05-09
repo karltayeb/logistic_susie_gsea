@@ -377,7 +377,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-05-08
+<strong>Last updated:</strong> 2021-05-09
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -468,16 +468,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatreee5b024ab45bc6bdb251d39f7f2f92e8f2cac614etargetblanke5b024aa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/e5b024ab45bc6bdb251d39f7f2f92e8f2cac614e" target="_blank">e5b024a</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatree8b36f06ccde19fb4fa21aab052b6b6fa6c226a32targetblank8b36f06a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/8b36f06ccde19fb4fa21aab052b6b6fa6c226a32" target="_blank">8b36f06</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatreee5b024ab45bc6bdb251d39f7f2f92e8f2cac614etargetblanke5b024aa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatree8b36f06ccde19fb4fa21aab052b6b6fa6c226a32targetblank8b36f06a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/e5b024ab45bc6bdb251d39f7f2f92e8f2cac614e" target="_blank">e5b024a</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/8b36f06ccde19fb4fa21aab052b6b6fa6c226a32" target="_blank">8b36f06</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -510,6 +510,7 @@ Untracked files:
     Untracked:  data/WebGestalt/
     Untracked:  data/WebGestalt_cache/
     Untracked:  data/gene_list.txt
+    Untracked:  data/webgestalt_example_genelist.txt
     Untracked:  output/WebGestalt/
 
 Unstaged changes:
@@ -554,6 +555,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/8b36f06ccde19fb4fa21aab052b6b6fa6c226a32/analysis/simulations.Rmd" target="_blank">8b36f06</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-09
+</td>
+<td>
+wflow_publish(“analysis/simulations.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/karltayeb/logistic_susie_gsea/3b39c54b194dd110418e0fea1c51b3f4cb9546ae/docs/simulations.html" target="_blank">3b39c54</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -779,8 +814,11 @@ wflow_publish(“analysis/simulations.Rmd”)
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<p>SuSiE and logistic SuSiE worked better than Mr. Ash, but that is possible an issue of setting the priors right.</p>
-<p>Logistic SuSiE’s PIPs are better calibrated that SuSiE. Although this is not surprising</p>
+<ul>
+<li>SuSiE and logistic SuSiE worked better than Mr. Ash, but that is possible an issue of setting the priors right.</li>
+<li>Logistic SuSiE’s PIPs are better calibrated that SuSiE. Although this is not surprising</li>
+<li>We reproduce the performance of elastic net seen in <code>gerr</code> but we note that the advantages are not as large when using smaller, curated gene sets. Also both elastic net and lasso had low precision compared to SuSiE, logistic SuSiE and Mr. ASH</li>
+</ul>
 <pre class="r"><code>library(targets)
 library(tidyverse)</code></pre>
 <pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
@@ -1021,22 +1059,20 @@ karltayeb
 <div id="single-active-gene-set" class="section level2">
 <h2>Single active gene set</h2>
 <p>Now we simulate one active gene set. The log odds of observing the genes in the active gene set are controlled by <code>active.logit</code> and the log odds of observing background genes is controlled by <code>background.logit</code></p>
+<p>We plot FDP vs power. Dot’s indicate 0.95 thershold. We threshold PIPs for SuSiE, logistic SuSiE, and Mr. ASH. <span class="math inline">\(1 - p_{BH}\)</span> for FET, where <span class="math inline">\(p_{BH}\)</span> is the Benjamini Hochberg corrected p-value.</p>
 <pre class="r"><code>pattern &lt;- &#39;^l1.sim.score_([^_])*$&#39;
 result &lt;- tar_agg(pattern)
 
 plot.data &lt;- result %&gt;%
-  filter(!(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;))) %&gt;%
   unnest(scores) %&gt;%
-  group_by(method, background.logit, active.logit, thresh) %&gt;%
+  group_by(method, thresh) %&gt;%
   arrange(dplyr::desc(thresh)) %&gt;%
   mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
 
 ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
   geom_path() + 
-  geom_point(data=subset(plot.data, near(thresh, 0.95))) +
-  facet_grid(vars(active.logit), vars(background.logit))</code></pre>
-<pre><code>Warning: Removed 6012 row(s) containing missing values (geom_path).</code></pre>
-<pre><code>Warning: Removed 480 rows containing missing values (geom_point).</code></pre>
+  geom_point(data=subset(plot.data, near(thresh, 0.95)))</code></pre>
+<pre><code>Warning: Removed 8400 row(s) containing missing values (geom_path).</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
@@ -1097,19 +1133,21 @@ karltayeb
 </table>
 </div>
 </div>
-<p>Rows are increasing log odds of observing genes in active gene sets. Columns are increasing log odds of observing background genes. Most of these simulation scenarios. Points indicate a PIP threshold of 0.95 (for Fisher’s exact test, <span class="math inline">\(&lt; 0.05\)</span> Benjamini Hochberg corrected p-value). Logistic SuSiE and SuSiE do better than Mr. Ash overall. Logistic SuSiE often has lower power at the cutoff, but reliably keeps proportion of false discoveries low.</p>
+<p>Over the range of simulation we see that Mr. ASH has less power compared to SuSiE and logistic SuSiE. SuSiE’s power/FDR curve is generally more favorable than logistic SuSiE but the PIPs are not as well calibrated. Logistic SuSiE consistently controls FDP while SuSiE does not.</p>
+<p>Lasso, elastic net, and Fisher’s exact test all detect lots of active gene sets, but also a lot of false positives.</p>
+<p>A more granual view: Rows are increasing log odds of observing genes in active gene sets. Columns are increasing log odds of observing background genes. Most of these simulation scenarios. Points indicate a PIP threshold of 0.95 (for Fisher’s exact test, <span class="math inline">\(&lt; 0.05\)</span> Benjamini Hochberg corrected p-value). Logistic SuSiE and SuSiE do better than Mr. Ash overall. Logistic SuSiE often has lower power at the cutoff, but reliably keeps proportion of false discoveries low.</p>
 <pre class="r"><code>plot.data &lt;- result %&gt;%
-  filter(!(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;))) %&gt;%
   unnest(scores) %&gt;%
-  group_by(method, background.logit, thresh) %&gt;%
+  group_by(method, background.logit, active.logit, thresh) %&gt;%
   arrange(dplyr::desc(thresh)) %&gt;%
   mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
 
 ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
   geom_path() + 
   geom_point(data=subset(plot.data, near(thresh, 0.95))) +
-  facet_wrap(vars(background.logit))</code></pre>
-<pre><code>Warning: Removed 6000 row(s) containing missing values (geom_path).</code></pre>
+  facet_grid(vars(active.logit), vars(background.logit)) + theme(aspect=1.0)</code></pre>
+<pre><code>Warning: Removed 8412 row(s) containing missing values (geom_path).</code></pre>
+<pre><code>Warning: Removed 480 rows containing missing values (geom_point).</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
@@ -1170,20 +1208,18 @@ karltayeb
 </table>
 </div>
 </div>
-<p>This only is a little easier to look at, each facet is a different setting of <code>background.logit</code>. Interestingly, SuSiE seems to do a worse job controlling false positives when there are few background genes in the gene list.</p>
+<p>This only is a little easier to look at, each facet is a different setting of <code>background.logit</code>. Interestingly, SuSiE FDP is worse when there are few background genes in the gene list.</p>
 <pre class="r"><code>plot.data &lt;- result %&gt;%
-  filter(!(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;))) %&gt;%
   unnest(scores) %&gt;%
-  group_by(method, active.logit, thresh) %&gt;%
+  group_by(method, background.logit, thresh) %&gt;%
   arrange(dplyr::desc(thresh)) %&gt;%
   mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
 
 ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
   geom_path() + 
   geom_point(data=subset(plot.data, near(thresh, 0.95))) +
-  facet_wrap(vars(active.logit))</code></pre>
-<pre><code>Warning: Removed 6012 row(s) containing missing values (geom_path).</code></pre>
-<pre><code>Warning: Removed 240 rows containing missing values (geom_point).</code></pre>
+  facet_wrap(vars(background.logit)) + theme(aspect=1.0)</code></pre>
+<pre><code>Warning: Removed 8400 row(s) containing missing values (geom_path).</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
@@ -1244,20 +1280,20 @@ karltayeb
 </table>
 </div>
 </div>
-<pre class="r"><code>t &lt;- 0.95
-result %&gt;%
+<p>Again but now facet on <code>active.logit</code>.</p>
+<pre class="r"><code>plot.data &lt;- result %&gt;%
+  filter(!(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;))) %&gt;%
   unnest(scores) %&gt;%
-  filter(near(thresh, t)) %&gt;%
-  group_by(method, background.logit, active.logit) %&gt;%
-  summarise(
-    recall = sum(TP) / sum(TP + FN),
-    precision = sum(TP) / sum(TP + FP),
-    specificity = sum(TN) / sum(TN + FP)
-  ) %&gt;%
-  pivot_longer(c(recall, precision, specificity), names_to= &#39;metric&#39;) %&gt;%
-  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
-  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)</code></pre>
-<pre><code>`summarise()` has grouped output by &#39;method&#39;, &#39;background.logit&#39;. You can override using the `.groups` argument.</code></pre>
+  group_by(method, active.logit, thresh) %&gt;%
+  arrange(dplyr::desc(thresh)) %&gt;%
+  mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
+
+ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
+  geom_path() + 
+  geom_point(data=subset(plot.data, near(thresh, 0.95))) +
+  facet_wrap(vars(active.logit)) + theme(aspect=1.0)</code></pre>
+<pre><code>Warning: Removed 6012 row(s) containing missing values (geom_path).</code></pre>
+<pre><code>Warning: Removed 240 rows containing missing values (geom_point).</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
@@ -1318,19 +1354,22 @@ karltayeb
 </table>
 </div>
 </div>
-<p>Another visualization of each models performance at a 0.95 cutoff. Bottom right corner there is no enrichment. Mr. Ash is often not reporting any gene sets when <code>active.logit</code> is small. We also see that SuSiE has higher recall than logistic SuSiE both when <code>background.logit</code> is large and <code>active.logit</code> is small.</p>
-<div id="credible-sets" class="section level3">
-<h3>Credible Sets</h3>
-<pre class="r"><code>pattern &lt;- &#39;^l1.sim.score.cs_([^_])*$&#39;
-result &lt;- tar_agg(pattern)
-
-result %&gt;% select(cs_in_causal, n_causal, cs_size, method) %&gt;%
-  unnest(c(cs_in_causal, n_causal, cs_size)) %&gt;%
-  mutate(contains_causal = n_causal &gt; 0) %&gt;%
-  ggplot(aes(x=cs_size, fill=contains_causal)) +
-  geom_histogram(position=&#39;dodge&#39;) + facet_wrap(vars(method)) + theme(aspect=1.0)</code></pre>
-<pre><code>Adding missing grouping variables: `background.logit`, `active.logit`, `rep`, `batch`</code></pre>
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p>Precision, recall, F1, specificity at a 0.95 cutoff. Bottom right corner there is no enrichment. Mr. Ash is often not reporting any gene sets when <code>active.logit</code> is small. We also see that SuSiE has higher recall than logistic SuSiE both when <code>background.logit</code> is large and <code>active.logit</code> is small.</p>
+<pre class="r"><code>t &lt;- 0.95
+result %&gt;%
+  unnest(scores) %&gt;%
+  filter(near(thresh, t)) %&gt;%
+  group_by(method, background.logit, active.logit) %&gt;%
+  summarise(
+    recall = sum(TP) / sum(TP + FN),
+    precision = sum(TP) / sum(TP + FP),
+    specificity = sum(TN) / sum(TN + FP),
+    F1 = 2 * precision * recall / (precision + recall)
+  ) %&gt;%
+  pivot_longer(c(recall, precision, specificity, F1), names_to= &#39;metric&#39;) %&gt;%
+  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
+  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;method&#39;, &#39;background.logit&#39;. You can override using the `.groups` argument.</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
@@ -1402,19 +1441,20 @@ karltayeb
 </table>
 </div>
 </div>
-<p>Pretty much all of the small credible sets are singleton credible sets.</p>
-<pre class="r"><code>result %&gt;% rowwise() %&gt;% mutate(
-    TP = length(unique(unlist(cs_in_causal[cs_size &lt; 5]))),
-    FN = 1 - TP,
-    FP = sum((n_causal == 0) &amp; (cs_size &lt; 5)),
-    recall = TP / (TP + FN),
-    precision = TP / (TP + FP),
-  ) %&gt;% 
-  select(background.logit, active.logit, method, recall, precision) %&gt;%
-  pivot_longer(c(recall, precision), names_to= &#39;metric&#39;) %&gt;%
-  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
-  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)</code></pre>
-<pre><code>Adding missing grouping variables: `rep`, `batch`</code></pre>
+<div id="credible-sets" class="section level3">
+<h3>Credible Sets</h3>
+<p>We look at the <span class="math inline">\(95\%\)</span> credible sets for SuSiE and logistic SuSie. Pretty much all of the small credible sets are singleton credible sets, but logistic SuSiE has fewer false positives.</p>
+<pre class="r"><code>pattern &lt;- &#39;^l1.sim.score.cs_([^_])*$&#39;
+result &lt;- tar_agg(pattern)
+
+result %&gt;% select(cs_in_causal, n_causal, cs_size, method) %&gt;%
+  unnest(c(cs_in_causal, n_causal, cs_size)) %&gt;%
+  mutate(contains_causal = n_causal &gt; 0) %&gt;%
+  ggplot(aes(x=cs_size, fill=contains_causal)) +
+  geom_histogram(position=&#39;dodge&#39;) + facet_wrap(vars(method)) + theme(aspect=1.0) +
+  labs(title=&#39;Credible Set Sizes&#39;)</code></pre>
+<pre><code>Adding missing grouping variables: `background.logit`, `active.logit`, `rep`, `batch`</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
@@ -1486,27 +1526,20 @@ karltayeb
 </table>
 </div>
 </div>
-</div>
-</div>
-<div id="multiple-active-gene-sets" class="section level2">
-<h2>Multiple active gene sets</h2>
-<p>In these simulations we have 5 or 10 active gene sets. SuSiE type meothods are fit with <span class="math inline">\(L=10\)</span>. Simulations from a model where log odds are additive, intercept determined by <code>background.logit</code>, the log odds of observing a gene are <code>k * active.logit</code> where <span class="math inline">\(k\)</span> is the number of active gene sets to which that gene is a member.</p>
-<pre class="r"><code>pattern &lt;- &#39;^cas.score_([^_])*$&#39;
-result &lt;- tar_agg(pattern)
-
-plot.data &lt;- result %&gt;%
-  filter(!(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;))) %&gt;%
-  unnest(scores) %&gt;%
-  group_by(method, background.logit, active.logit, thresh) %&gt;%
-  arrange(desc(thresh)) %&gt;%
-  mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
-
-ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
-  geom_path() + 
-  geom_point(data=subset(plot.data, near(thresh, 0.95))) +
-  facet_grid(vars(active.logit), vars(background.logit))</code></pre>
-<pre><code>Warning: Removed 12096 row(s) containing missing values (geom_path).</code></pre>
-<pre><code>Warning: Removed 864 rows containing missing values (geom_point).</code></pre>
+<pre class="r"><code>result %&gt;% rowwise() %&gt;% mutate(
+    TP = length(unique(unlist(cs_in_causal[cs_size &lt; 20]))),
+    FN = 1 - TP,
+    FP = sum((n_causal == 0) &amp; (cs_size &lt; 20)),
+    recall = TP / (TP + FN),
+    precision = TP / (TP + FP),
+    F1 = 2 * precision * recall / (precision + recall)
+  ) %&gt;% 
+  select(background.logit, active.logit, method, recall, precision, F1) %&gt;%
+  pivot_longer(c(recall, precision, F1), names_to= &#39;metric&#39;) %&gt;%
+  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
+  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1) + 
+  labs(title=&#39;95% Credible sets, Single Active Gene Set&#39;)</code></pre>
+<pre><code>Adding missing grouping variables: `rep`, `batch`</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-1">
@@ -1578,19 +1611,14 @@ karltayeb
 </table>
 </div>
 </div>
-<p>We see overall the same trend where SuSiE’s curve is better that logistic SuSiE, but it’s PIPs are not well calibrated. In all cases logistic SuSiE keeps the proportion of false discoveries low. SuSiE does not.</p>
-<pre class="r"><code>plot.data &lt;- result %&gt;%
-  filter(!(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;))) %&gt;%
-  unnest(scores) %&gt;%
-  group_by(method, n_active, thresh) %&gt;%
-  arrange(desc(thresh)) %&gt;%
-  mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
-
-ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
-  geom_path() + 
-  geom_point(data=subset(plot.data, near(thresh, 0.95))) +
-  facet_wrap(vars(n_active)) + theme(aspect=1)</code></pre>
-<pre><code>Warning: Removed 12000 row(s) containing missing values (geom_path).</code></pre>
+<pre class="r"><code>result %&gt;% filter(method %in% c(&#39;susie.veb.boost&#39;, &#39;logistic.susie.veb.boost&#39;)) %&gt;%
+  select(method, background.logit, active.logit, rep, batch, cs_size) %&gt;% unnest(cs_size) %&gt;%
+  mutate(small_cset = cs_size &lt; 20) %&gt;%
+  group_by(method, background.logit, active.logit, rep, batch) %&gt;%
+  summarise(n_csets = sum(small_cset)) %&gt;%
+  ggplot(aes(x=n_csets, fill=method)) + geom_bar(position = &#39;dodge2&#39;) + theme(aspect.ratio = 1) + 
+  labs(title=&#39;# of Small Credible sets (&lt; 20)&#39;)</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;method&#39;, &#39;background.logit&#39;, &#39;active.logit&#39;, &#39;rep&#39;. You can override using the `.groups` argument.</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-11-1">
@@ -1662,115 +1690,25 @@ karltayeb
 </table>
 </div>
 </div>
-<p>Again, this one is probability easier to look at. Facet over number of active gene sets.</p>
-<div id="active-components" class="section level3">
-<h3>5 active components</h3>
-<pre class="r"><code>t &lt;- 0.95
-result %&gt;%
+<p>Virtually all of</p>
+</div>
+</div>
+<div id="multiple-active-gene-sets" class="section level2">
+<h2>Multiple active gene sets</h2>
+<p>In these simulations we have 5 or 10 active gene sets. SuSiE type meothods are fit with <span class="math inline">\(L=10\)</span>. Simulations from a model where log odds are additive, intercept determined by <code>background.logit</code>, the log odds of observing a gene are <code>k * active.logit</code> where <span class="math inline">\(k\)</span> is the number of active gene sets to which that gene is a member.</p>
+<pre class="r"><code>pattern &lt;- &#39;^cas.score_([^_])*$&#39;
+result &lt;- tar_agg(pattern)</code></pre>
+<pre class="r"><code>plot.data &lt;- result %&gt;%
   unnest(scores) %&gt;%
-  filter(n_active == 5) %&gt;%
-  mutate(thresh = ifelse(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;), thresh + t, thresh)) %&gt;%
-  filter(near(thresh, t)) %&gt;%
-  group_by(method, background.logit, active.logit) %&gt;%
-  summarise(
-    recall = sum(TP) / sum(TP + FN),
-    precision = sum(TP) / sum(TP + FP),
-    specificity = sum(TN) / sum(TN + FP)
-  ) %&gt;%
-  pivot_longer(c(recall, precision, specificity), names_to= &#39;metric&#39;) %&gt;%
-  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
-  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)</code></pre>
-<pre><code>`summarise()` has grouped output by &#39;method&#39;, &#39;background.logit&#39;. You can override using the `.groups` argument.</code></pre>
-<p><img src="figure/simulations.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-1">
-Past versions of unnamed-chunk-12-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-12-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/237372729695300a5d509c0a327179ecbb94e7a4/docs/figure/simulations.Rmd/unnamed-chunk-12-1.png" target="_blank">2373727</a>
-</td>
-<td>
-karltayeb
-</td>
-<td>
-2021-05-08
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/0d078f186c6a4aeba37b44e40826b4077dd85888/docs/figure/simulations.Rmd/unnamed-chunk-12-1.png" target="_blank">0d078f1</a>
-</td>
-<td>
-karltayeb
-</td>
-<td>
-2021-05-08
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/3889650f539cffa9f9d3d5828222d6d222c52196/docs/figure/simulations.Rmd/unnamed-chunk-12-1.png" target="_blank">3889650</a>
-</td>
-<td>
-karltayeb
-</td>
-<td>
-2021-05-08
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/75f755c37e2c9cb4f89a3646058107b92e7ecbca/docs/figure/simulations.Rmd/unnamed-chunk-12-1.png" target="_blank">75f755c</a>
-</td>
-<td>
-karltayeb
-</td>
-<td>
-2021-05-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<div id="active-components-1" class="section level3">
-<h3>10 active components</h3>
-<pre class="r"><code>t &lt;- 0.95
-result %&gt;%
-  unnest(scores) %&gt;%
-  filter(n_active == 10) %&gt;%
-  mutate(thresh = ifelse(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;), thresh + t, thresh)) %&gt;%
-  filter(near(thresh, t)) %&gt;%
-  group_by(method, background.logit, active.logit) %&gt;%
-  summarise(
-    recall = sum(TP) / sum(TP + FN),
-    precision = sum(TP) / sum(TP + FP),
-    specificity = sum(TN) / sum(TN + FP)
-  ) %&gt;%
-  pivot_longer(c(recall, precision, specificity), names_to= &#39;metric&#39;) %&gt;%
-  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
-  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)</code></pre>
-<pre><code>`summarise()` has grouped output by &#39;method&#39;, &#39;background.logit&#39;. You can override using the `.groups` argument.</code></pre>
+  group_by(method, n_active, thresh) %&gt;%
+  arrange(desc(thresh)) %&gt;%
+  mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
+
+ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
+  geom_path() + 
+  geom_point(data=subset(plot.data, near(thresh, 0.95))) +
+  facet_wrap(vars(n_active)) + theme(aspect=1)</code></pre>
+<pre><code>Warning: Removed 16800 row(s) containing missing values (geom_path).</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-13-1">
@@ -1842,19 +1780,18 @@ karltayeb
 </table>
 </div>
 </div>
-</div>
-<div id="credible-sets-1" class="section level3">
-<h3>Credible sets</h3>
-<pre class="r"><code>pattern &lt;- &#39;^cas.score.cs_([^_])*$&#39;
-result &lt;- tar_agg(pattern)
+<pre class="r"><code>plot.data &lt;- result %&gt;%
+  unnest(scores) %&gt;%
+  group_by(method, background.logit, active.logit, thresh) %&gt;%
+  arrange(desc(thresh)) %&gt;%
+  mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
 
-result %&gt;% select(cs_in_causal, n_causal, cs_size, method) %&gt;%
-  unnest(c(cs_in_causal, n_causal, cs_size)) %&gt;%
-  mutate(contains_causal = n_causal &gt; 0) %&gt;%
-  ggplot(aes(x=cs_size, fill=contains_causal)) +
-  geom_histogram(position=&#39;dodge&#39;) + facet_wrap(vars(method)) + theme(aspect=1.0)</code></pre>
-<pre><code>Adding missing grouping variables: `background.logit`, `active.logit`, `n_active`, `rep`, `batch`</code></pre>
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
+  geom_path() + 
+  geom_point(data=subset(plot.data, near(thresh, 0.95))) +
+  facet_grid(vars(active.logit), vars(background.logit)) + theme(aspect=1.0)</code></pre>
+<pre><code>Warning: Removed 16896 row(s) containing missing values (geom_path).</code></pre>
+<pre><code>Warning: Removed 864 rows containing missing values (geom_point).</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-14-1">
@@ -1926,14 +1863,26 @@ karltayeb
 </table>
 </div>
 </div>
-<pre class="r"><code>result %&gt;% select(cs_in_causal, n_causal, cs_size, method) %&gt;%
-  unnest(c(cs_in_causal, n_causal, cs_size)) %&gt;% 
-  mutate(contains_causal = n_causal &gt; 0) %&gt;%
-  filter(cs_size &lt; 5) %&gt;%
-  ggplot(aes(x=cs_size, fill=contains_causal)) +
-  geom_histogram(position=&#39;dodge&#39;) + facet_wrap(vars(method)) + theme(aspect=1.0)</code></pre>
-<pre><code>Adding missing grouping variables: `background.logit`, `active.logit`, `n_active`, `rep`, `batch`</code></pre>
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p>We see overall the same trend where SuSiE’s curve is better that logistic SuSiE, but it’s PIPs are not well calibrated. In all cases logistic SuSiE keeps the proportion of false discoveries low. SuSiE does not.</p>
+<div id="active-components" class="section level3">
+<h3>5 active components</h3>
+<pre class="r"><code>t &lt;- 0.95
+result %&gt;%
+  unnest(scores) %&gt;%
+  filter(n_active == 5) %&gt;%
+  mutate(thresh = ifelse(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;), thresh + t, thresh)) %&gt;%
+  filter(near(thresh, t)) %&gt;%
+  group_by(method, background.logit, active.logit) %&gt;%
+  summarise(
+    recall = sum(TP) / sum(TP + FN),
+    precision = sum(TP) / sum(TP + FP),
+    specificity = sum(TN) / sum(TN + FP),
+    F1 = 2 * precision * recall / (precision + recall)
+  ) %&gt;%
+  pivot_longer(c(recall, precision, specificity, F1), names_to= &#39;metric&#39;) %&gt;%
+  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
+  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;method&#39;, &#39;background.logit&#39;. You can override using the `.groups` argument.</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-15-1">
@@ -2005,19 +1954,26 @@ karltayeb
 </table>
 </div>
 </div>
-<p>Just a quick look at which credible sets have active gene sets. Virtually all of the small credible sets are singletons, more of the logistic SuSiE gene sets are false positives.</p>
-<pre class="r"><code>result %&gt;% rowwise() %&gt;% mutate(
-    TP = length(unique(unlist(cs_in_causal[cs_size &lt; 5]))),
-    FN = n_active - TP,
-    FP = sum((n_causal == 0) &amp; (cs_size &lt; 5)),
-    recall = TP / (TP + FN),
-    precision = TP / (TP + FP),
-  ) %&gt;% 
-  select(n_active, background.logit, active.logit, method, recall, precision) %&gt;%
-  pivot_longer(c(recall, precision), names_to= &#39;metric&#39;) %&gt;%
+</div>
+<div id="active-components-1" class="section level3">
+<h3>10 active components</h3>
+<pre class="r"><code>t &lt;- 0.95
+result %&gt;%
+  unnest(scores) %&gt;%
+  filter(n_active == 10) %&gt;%
+  mutate(thresh = ifelse(method %in% c(&#39;elastic.net&#39;, &#39;lasso&#39;), thresh + t, thresh)) %&gt;%
+  filter(near(thresh, t)) %&gt;%
+  group_by(method, background.logit, active.logit) %&gt;%
+  summarise(
+    recall = sum(TP) / sum(TP + FN),
+    precision = sum(TP) / sum(TP + FP),
+    specificity = sum(TN) / sum(TN + FP),
+    F1 = 2 * precision * recall / (precision + recall)
+  ) %&gt;%
+  pivot_longer(c(recall, precision, specificity, F1), names_to= &#39;metric&#39;) %&gt;%
   ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
   geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)</code></pre>
-<pre><code>Adding missing grouping variables: `rep`, `batch`</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;method&#39;, &#39;background.logit&#39;. You can override using the `.groups` argument.</code></pre>
 <p><img src="figure/simulations.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-16-1">
@@ -2078,6 +2034,30 @@ karltayeb
 </table>
 </div>
 </div>
+</div>
+<div id="credible-sets-1" class="section level3">
+<h3>Credible sets</h3>
+<pre class="r"><code>pattern &lt;- &#39;^cas.score.cs_([^_])*$&#39;
+result &lt;- tar_agg(pattern)
+
+result %&gt;% select(cs_in_causal, n_causal, cs_size, method) %&gt;%
+  unnest(c(cs_in_causal, n_causal, cs_size)) %&gt;%
+  mutate(contains_causal = n_causal &gt; 0) %&gt;%
+  ggplot(aes(x=cs_size, fill=contains_causal)) +
+  geom_histogram(position=&#39;dodge&#39;) + facet_wrap(vars(method)) + theme(aspect=1.0)</code></pre>
+<pre><code>Adding missing grouping variables: `background.logit`, `active.logit`, `n_active`, `rep`, `batch`</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/simulations.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>result %&gt;% select(cs_in_causal, n_causal, cs_size, method) %&gt;%
+  unnest(c(cs_in_causal, n_causal, cs_size)) %&gt;% 
+  mutate(contains_causal = n_causal &gt; 0) %&gt;%
+  filter(cs_size &lt; 5) %&gt;%
+  ggplot(aes(x=cs_size, fill=contains_causal)) +
+  geom_histogram(position=&#39;dodge&#39;) + facet_wrap(vars(method)) + theme(aspect=1.0)</code></pre>
+<pre><code>Adding missing grouping variables: `background.logit`, `active.logit`, `n_active`, `rep`, `batch`</code></pre>
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="figure/simulations.Rmd/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Just a quick look at which credible sets have active gene sets. Virtually all of the small credible sets are singletons, more of the logistic SuSiE gene sets are false positives.</p>
 <pre class="r"><code>result %&gt;% rowwise() %&gt;% mutate(
     TP = length(unique(unlist(cs_in_causal[cs_size &lt; 5]))),
     FN = n_active - TP,
@@ -2087,69 +2067,38 @@ karltayeb
   ) %&gt;% 
   select(n_active, background.logit, active.logit, method, recall, precision) %&gt;%
   pivot_longer(c(recall, precision), names_to= &#39;metric&#39;) %&gt;%
-  ggplot(aes(x=metric, y=value, fill=method)) + geom_boxplot() + facet_wrap(vars(active.logit))</code></pre>
+  ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
+  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)</code></pre>
+<pre><code>Adding missing grouping variables: `rep`, `batch`</code></pre>
+<p><img src="figure/simulations.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>result %&gt;% rowwise() %&gt;% mutate(
+    TP = length(unique(unlist(cs_in_causal[cs_size &lt; 5]))),
+    FN = n_active - TP,
+    FP = sum((n_causal == 0) &amp; (cs_size &lt; 5)),
+    recall = TP / (TP + FN),
+    precision = TP / (TP + FP),
+  ) %&gt;% 
+  select(n_active, background.logit, active.logit, method, recall, precision) %&gt;%
+  pivot_longer(c(recall, precision), names_to= &#39;metric&#39;) %&gt;%
+  ggplot(aes(x=metric, y=value, fill=method)) + geom_boxplot() + facet_wrap(vars(active.logit)) + theme(aspect=1.0)</code></pre>
 <pre><code>Adding missing grouping variables: `rep`, `batch`</code></pre>
 <pre><code>Warning: Removed 476 rows containing non-finite values (stat_boxplot).</code></pre>
-<p><img src="figure/simulations.Rmd/unnamed-chunk-16-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-16-2">
-Past versions of unnamed-chunk-16-2.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-16-2" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/237372729695300a5d509c0a327179ecbb94e7a4/docs/figure/simulations.Rmd/unnamed-chunk-16-2.png" target="_blank">2373727</a>
-</td>
-<td>
-karltayeb
-</td>
-<td>
-2021-05-08
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/0d078f186c6a4aeba37b44e40826b4077dd85888/docs/figure/simulations.Rmd/unnamed-chunk-16-2.png" target="_blank">0d078f1</a>
-</td>
-<td>
-karltayeb
-</td>
-<td>
-2021-05-08
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/3889650f539cffa9f9d3d5828222d6d222c52196/docs/figure/simulations.Rmd/unnamed-chunk-16-2.png" target="_blank">3889650</a>
-</td>
-<td>
-karltayeb
-</td>
-<td>
-2021-05-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/simulations.Rmd/unnamed-chunk-19-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>result %&gt;% filter(method %in% c(&#39;susie.veb.boost&#39;, &#39;logistic.susie.veb.boost&#39;)) %&gt;%
+  select(method, background.logit, active.logit, n_active, rep, batch, cs_size) %&gt;% unnest(cs_size) %&gt;%
+  mutate(small_cset = cs_size &lt; 20) %&gt;%
+  group_by(method, background.logit, active.logit, n_active, rep, batch) %&gt;%
+  summarise(n_csets = sum(small_cset)) %&gt;%
+  ggplot(aes(x=n_csets, fill=method)) + geom_bar(position = &#39;dodge2&#39;) + theme(aspect.ratio = 1) + facet_wrap(vars(n_active))</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;method&#39;, &#39;background.logit&#39;, &#39;active.logit&#39;, &#39;n_active&#39;, &#39;rep&#39;. You can override using the `.groups` argument.</code></pre>
+<p><img src="figure/simulations.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>  labs(title=&#39;# of Small Credible sets (&lt; 20)&#39;)</code></pre>
+<pre><code>$title
+[1] &quot;# of Small Credible sets (&lt; 20)&quot;
+
+attr(,&quot;class&quot;)
+[1] &quot;labels&quot;</code></pre>
+<p>SuSiE is more prone to having extra credible sets.</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
