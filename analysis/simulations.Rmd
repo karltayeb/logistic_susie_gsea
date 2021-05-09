@@ -14,9 +14,7 @@ editor_options:
 Here we show the results of 3 simple simulations.
 
 *   Single active gene set, gene in gene list iff gene in active gene set
-
 *   Single active gene set: gene set genes are included in gene list according to `active.logit`, background genes included in gene set according to `background.logit`
-
 *   Multiple active gene sets: 5 or 10 active gene sets per simulation. We simulate under an additive model with intercept determined by `background.logit` and with constant effect size parameterized by `active.logit`
 
 ```{r}
