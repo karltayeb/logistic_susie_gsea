@@ -22,9 +22,9 @@ We compare to Fisher's exact test, Regularized regression: elastic net, lasso, a
 
 ## Summary
 
-SuSiE and logistic SuSiE worked better than Mr. Ash, but that is possible an issue of setting the priors right.
-
-Logistic SuSiE's PIPs are better calibrated that SuSiE. Although this is not surprising
+*   SuSiE and logistic SuSiE worked better than Mr. Ash, but that is possible an issue of setting the priors right.
+*   Logistic SuSiE's PIPs are better calibrated that SuSiE. Although this is not surprising
+*   We reproduce the performance of elastic net seen in `gerr` but we note that the advantages are not as large when using smaller, curated gene sets. Also both elastic net and lasso had low precision compared to SuSiE, logistic SuSiE and Mr. ASH
 
 
 ```{r}
@@ -61,7 +61,6 @@ result %>%
   group_by(method, FP) %>% summarise(freq = length(FP)) %>%
   ggplot(aes(x=factor(FP), y=freq, fill=method)) + geom_bar(stat="identity") + facet_wrap(vars(method))
 
-
 # plot
 result %>%
   unnest(scores) %>%
@@ -97,12 +96,31 @@ pip.comp %>% unnest(everything()) %>% ggplot(aes(x=susie.pip, y=susie.veb.boost.
 
 Now we simulate one active gene set. The log odds of observing the genes in the active gene set are controlled by `active.logit` and the log odds of observing background genes is controlled by `background.logit`
 
+We plot FDP vs power. Dot's indicate 0.95 thershold. We threshold PIPs for SuSiE, logistic SuSiE, and Mr. ASH. $1 - p_{BH}$ for FET, where $p_{BH}$ is the Benjamini Hochberg corrected p-value.
+
 ```{r}
 pattern <- '^l1.sim.score_([^_])*$'
 result <- tar_agg(pattern)
 
 plot.data <- result %>%
-  filter(!(method %in% c('elastic.net', 'lasso'))) %>%
+  unnest(scores) %>%
+  group_by(method, thresh) %>%
+  arrange(dplyr::desc(thresh)) %>%
+  mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
+
+ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
+  geom_path() + 
+  geom_point(data=subset(plot.data, near(thresh, 0.95)))
+```
+
+Over the range of simulation we see that Mr. ASH has less power compared to SuSiE and logistic SuSiE. SuSiE's power/FDR curve is generally more favorable than logistic SuSiE but the PIPs are not as well calibrated. Logistic SuSiE consistently controls FDP while SuSiE does not. 
+
+Lasso, elastic net, and Fisher's exact test all detect lots of active gene sets, but also a lot of false positives.
+
+A more granual view: Rows are increasing log odds of observing genes in active gene sets. Columns are increasing log odds of observing background genes. Most of these simulation scenarios. Points indicate a PIP threshold of 0.95 (for Fisher's exact test, $< 0.05$ Benjamini Hochberg corrected p-value). Logistic SuSiE and SuSiE do better than Mr. Ash overall. Logistic SuSiE often has lower power at the cutoff, but reliably keeps proportion of false discoveries low.
+
+```{r}
+plot.data <- result %>%
   unnest(scores) %>%
   group_by(method, background.logit, active.logit, thresh) %>%
   arrange(dplyr::desc(thresh)) %>%
@@ -111,14 +129,14 @@ plot.data <- result %>%
 ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
   geom_path() + 
   geom_point(data=subset(plot.data, near(thresh, 0.95))) +
-  facet_grid(vars(active.logit), vars(background.logit))
+  facet_grid(vars(active.logit), vars(background.logit)) + theme(aspect=1.0)
 ```
 
-Rows are increasing log odds of observing genes in active gene sets. Columns are increasing log odds of observing background genes. Most of these simulation scenarios. Points indicate a PIP threshold of 0.95 (for Fisher's exact test, $< 0.05$ Benjamini Hochberg corrected p-value). Logistic SuSiE and SuSiE do better than Mr. Ash overall. Logistic SuSiE often has lower power at the cutoff, but reliably keeps proportion of false discoveries low.
+
+This only is a little easier to look at, each facet is a different setting of `background.logit`. Interestingly, SuSiE FDP is worse when there are few background genes in the gene list.
 
 ```{r}
 plot.data <- result %>%
-  filter(!(method %in% c('elastic.net', 'lasso'))) %>%
   unnest(scores) %>%
   group_by(method, background.logit, thresh) %>%
   arrange(dplyr::desc(thresh)) %>%
@@ -127,10 +145,11 @@ plot.data <- result %>%
 ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
   geom_path() + 
   geom_point(data=subset(plot.data, near(thresh, 0.95))) +
-  facet_wrap(vars(background.logit))
+  facet_wrap(vars(background.logit)) + theme(aspect=1.0)
 ```
 
-This only is a little easier to look at, each facet is a different setting of `background.logit`. Interestingly, SuSiE seems to do a worse job controlling false positives when there are few background genes in the gene list.
+
+Again but now facet on `active.logit`.
 
 ```{r}
 plot.data <- result %>%
@@ -143,9 +162,12 @@ plot.data <- result %>%
 ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
   geom_path() + 
   geom_point(data=subset(plot.data, near(thresh, 0.95))) +
-  facet_wrap(vars(active.logit))
+  facet_wrap(vars(active.logit)) + theme(aspect=1.0)
 ```
 
+
+Precision, recall, F1, specificity at a 0.95 cutoff. Bottom right corner there is no enrichment.
+Mr. Ash is often not reporting any gene sets when `active.logit` is small. We also see that SuSiE has higher recall than logistic SuSiE both when `background.logit` is large and `active.logit` is small.
 
 ```{r}
 t <- 0.95
@@ -156,19 +178,18 @@ result %>%
   summarise(
     recall = sum(TP) / sum(TP + FN),
     precision = sum(TP) / sum(TP + FP),
-    specificity = sum(TN) / sum(TN + FP)
+    specificity = sum(TN) / sum(TN + FP),
+    F1 = 2 * precision * recall / (precision + recall)
   ) %>%
-  pivot_longer(c(recall, precision, specificity), names_to= 'metric') %>%
+  pivot_longer(c(recall, precision, specificity, F1), names_to= 'metric') %>%
   ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
   geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)
 ```
 
-Another visualization of each models performance at a 0.95 cutoff. Bottom right corner there is no enrichment.
-Mr. Ash is often not reporting any gene sets when `active.logit` is small. We also see that SuSiE has higher recall than logistic SuSiE both when `background.logit` is large and `active.logit` is small.
-
 
 ### Credible Sets
 
+We look at the $95\%$ credible sets for SuSiE and logistic SuSie. Pretty much all of the small credible sets are singleton credible sets, but logistic SuSiE has fewer false positives.
 
 ```{r}
 pattern <- '^l1.sim.score.cs_([^_])*$'
@@ -178,27 +199,39 @@ result %>% select(cs_in_causal, n_causal, cs_size, method) %>%
   unnest(c(cs_in_causal, n_causal, cs_size)) %>%
   mutate(contains_causal = n_causal > 0) %>%
   ggplot(aes(x=cs_size, fill=contains_causal)) +
-  geom_histogram(position='dodge') + facet_wrap(vars(method)) + theme(aspect=1.0)
+  geom_histogram(position='dodge') + facet_wrap(vars(method)) + theme(aspect=1.0) +
+  labs(title='Credible Set Sizes')
 ```
-
-
-Pretty much all of the small credible sets are singleton credible sets.
 
 
 ```{r}
 result %>% rowwise() %>% mutate(
-    TP = length(unique(unlist(cs_in_causal[cs_size < 5]))),
+    TP = length(unique(unlist(cs_in_causal[cs_size < 20]))),
     FN = 1 - TP,
-    FP = sum((n_causal == 0) & (cs_size < 5)),
+    FP = sum((n_causal == 0) & (cs_size < 20)),
     recall = TP / (TP + FN),
     precision = TP / (TP + FP),
+    F1 = 2 * precision * recall / (precision + recall)
   ) %>% 
-  select(background.logit, active.logit, method, recall, precision) %>%
-  pivot_longer(c(recall, precision), names_to= 'metric') %>%
+  select(background.logit, active.logit, method, recall, precision, F1) %>%
+  pivot_longer(c(recall, precision, F1), names_to= 'metric') %>%
   ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
-  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)
+  geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1) + 
+  labs(title='95% Credible sets, Single Active Gene Set')
 ```
 
+
+```{r}
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, background.logit, active.logit, rep, batch, cs_size) %>% unnest(cs_size) %>%
+  mutate(small_cset = cs_size < 20) %>%
+  group_by(method, background.logit, active.logit, rep, batch) %>%
+  summarise(n_csets = sum(small_cset)) %>%
+  ggplot(aes(x=n_csets, fill=method)) + geom_bar(position = 'dodge2') + theme(aspect.ratio = 1) + 
+  labs(title='# of Small Credible sets (< 20)')
+```
+
+Virtually all of 
 
 ## Multiple active gene sets
 
@@ -207,25 +240,10 @@ In these simulations we have 5 or 10 active gene sets. SuSiE type meothods are f
 ```{r}
 pattern <- '^cas.score_([^_])*$'
 result <- tar_agg(pattern)
-
-plot.data <- result %>%
-  filter(!(method %in% c('elastic.net', 'lasso'))) %>%
-  unnest(scores) %>%
-  group_by(method, background.logit, active.logit, thresh) %>%
-  arrange(desc(thresh)) %>%
-  mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
-
-ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
-  geom_path() + 
-  geom_point(data=subset(plot.data, near(thresh, 0.95))) +
-  facet_grid(vars(active.logit), vars(background.logit))
 ```
-
-We see overall the same trend where SuSiE's curve is better that logistic SuSiE, but it's PIPs are not well calibrated. In all cases logistic SuSiE keeps the proportion of false discoveries low. SuSiE does not.
 
 ```{r}
 plot.data <- result %>%
-  filter(!(method %in% c('elastic.net', 'lasso'))) %>%
   unnest(scores) %>%
   group_by(method, n_active, thresh) %>%
   arrange(desc(thresh)) %>%
@@ -237,7 +255,20 @@ ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) +
   facet_wrap(vars(n_active)) + theme(aspect=1)
 ```
 
-Again, this one is probability easier to look at. Facet over number of active gene sets.
+```{r}
+plot.data <- result %>%
+  unnest(scores) %>%
+  group_by(method, background.logit, active.logit, thresh) %>%
+  arrange(desc(thresh)) %>%
+  mutate(power = sum(TP) / sum(TP + FN), FDP = sum(FP) / sum(FP + TP))
+
+ggplot(data=plot.data, aes(x=FDP, y=power, color=method)) + 
+  geom_path() + 
+  geom_point(data=subset(plot.data, near(thresh, 0.95))) +
+  facet_grid(vars(active.logit), vars(background.logit)) + theme(aspect=1.0)
+```
+
+We see overall the same trend where SuSiE's curve is better that logistic SuSiE, but it's PIPs are not well calibrated. In all cases logistic SuSiE keeps the proportion of false discoveries low. SuSiE does not.
 
 ### 5 active components
 
@@ -252,9 +283,10 @@ result %>%
   summarise(
     recall = sum(TP) / sum(TP + FN),
     precision = sum(TP) / sum(TP + FP),
-    specificity = sum(TN) / sum(TN + FP)
+    specificity = sum(TN) / sum(TN + FP),
+    F1 = 2 * precision * recall / (precision + recall)
   ) %>%
-  pivot_longer(c(recall, precision, specificity), names_to= 'metric') %>%
+  pivot_longer(c(recall, precision, specificity, F1), names_to= 'metric') %>%
   ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
   geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)
 ```
@@ -273,9 +305,10 @@ result %>%
   summarise(
     recall = sum(TP) / sum(TP + FN),
     precision = sum(TP) / sum(TP + FP),
-    specificity = sum(TN) / sum(TN + FP)
+    specificity = sum(TN) / sum(TN + FP),
+    F1 = 2 * precision * recall / (precision + recall)
   ) %>%
-  pivot_longer(c(recall, precision, specificity), names_to= 'metric') %>%
+  pivot_longer(c(recall, precision, specificity, F1), names_to= 'metric') %>%
   ggplot(aes(x=background.logit, y=active.logit, fill=value)) + 
   geom_tile() + facet_grid(vars(metric), vars(method)) + theme(aspect.ratio = 1)
 ```
@@ -306,7 +339,6 @@ result %>% select(cs_in_causal, n_causal, cs_size, method) %>%
 Just a quick look at which credible sets have active gene sets. Virtually all of the small credible sets are singletons, more of the logistic SuSiE gene sets are false positives.
 
 ```{r}
-
 result %>% rowwise() %>% mutate(
     TP = length(unique(unlist(cs_in_causal[cs_size < 5]))),
     FN = n_active - TP,
@@ -329,8 +361,21 @@ result %>% rowwise() %>% mutate(
   ) %>% 
   select(n_active, background.logit, active.logit, method, recall, precision) %>%
   pivot_longer(c(recall, precision), names_to= 'metric') %>%
-  ggplot(aes(x=metric, y=value, fill=method)) + geom_boxplot() + facet_wrap(vars(active.logit))
+  ggplot(aes(x=metric, y=value, fill=method)) + geom_boxplot() + facet_wrap(vars(active.logit)) + theme(aspect=1.0)
 ```
+
+
+```{r}
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, background.logit, active.logit, n_active, rep, batch, cs_size) %>% unnest(cs_size) %>%
+  mutate(small_cset = cs_size < 20) %>%
+  group_by(method, background.logit, active.logit, n_active, rep, batch) %>%
+  summarise(n_csets = sum(small_cset)) %>%
+  ggplot(aes(x=n_csets, fill=method)) + geom_bar(position = 'dodge2') + theme(aspect.ratio = 1) + facet_wrap(vars(n_active))
+  labs(title='# of Small Credible sets (< 20)')
+```
+
+SuSiE is more prone to having extra credible sets.
 
 
 
