@@ -1,0 +1,185 @@
+---
+title: "GSEABenchmark_relevance_analysis"
+author: "karltayeb"
+date: "2021-04-26"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Overview
+
+
+```{r}
+library(targets)
+library(tidyverse)
+
+# load and row_bind all targets matching a pattern
+tar_agg <- function(pattern){
+  load.env <- new.env()
+  tar_load(matches(pattern), envir = load.env)
+  result <- grep(pattern , names(load.env), value=TRUE)
+  result <- do.call("list", mget(result, envir = load.env))
+  result <- bind_rows(result)
+}
+```
+
+
+## GSEA BenchmarkR
+
+### Relevance scores
+
+`GSEABenchmarkeR` is a package for benchmarking GSEA methods. They provide uniformly processed expression data from TCGA, and for each disease they provide "relevance scores" for gene sets in GO-BP, GO-MF, and KEGG. These relevance scores were derived from MalaCards. I'm not sure exactly how they were generated but they are supposed to serve as Silver standard to benchmark performance of GSEA methods.
+
+1. Took the gene sets used in GSEABenchmarkeR paper [cite] from GO and KEGG (downloaded from `EnrichmentBrowser`, filter down to gene sets larger that 5 genes and smaller than 500 genes).
+1. Performed a vanilla differential expression analysis from the `GSEABenchmarkeR` documentation for each TCGA expression set. We construct gene lists by taking all genes with Benjamini Hochberg corrected pvalue $< 0.05$
+1. Fit gene-list based GSEA methods to the resulting gene lists
+1. Compute a "relevance score" which compares the ranking produced by the GSEA method with the relevance scores.
+
+Fishers exact test, SuSiE, and Logistic SuSiE have the highest relevance according to this relevance scores
+Ranks for SuSie, Logistic SuSiE, and mr.ash generated from PIPs, ranks for FET generated from BH corrected p-values. 
+
+```{r}
+pattern <- '^gseabenchmark.score_([^_])*$'
+result <- tar_agg(pattern)
+
+tar_load('gseabenchmark.score_lasso')
+tar_load('gseabenchmark.score_susie.veb.boost')
+tar_load('gseabenchmark.score_logistic.susie.veb.boost')
+tar_load('gseabenchmark.score_lasso')
+tar_load('gseabenchmark.score_elastic.net')
+tar_load('gseabenchmark.score_fet')
+
+result <- bind_rows(
+  gseabenchmark.score_fet,
+  gseabenchmark.score_lasso,
+  gseabenchmark.score_susie.veb.boost,
+  gseabenchmark.score_logistic.susie.veb.boost,
+  gseabenchmark.score_lasso,
+  gseabenchmark.score_elastic.net
+)
+
+result %>% 
+  mutate(precent_optimal_relevance = relevance / opt.relevance) %>%
+  ggplot(aes(x=method, y=precent_optimal_relevance, fill=method)) +
+  geom_boxplot(position='dodge') + facet_wrap(vars(ID)) 
+
+result %>% 
+  mutate(precent_optimal_relevance = relevance / opt.relevance) %>%
+  ggplot(aes(x=method, y=precent_optimal_relevance, fill=method)) +
+  geom_col(position='dodge') + facet_wrap(vars(ID)) 
+
+result %>% 
+  ggplot(aes(x=method, y=relevance, fill=method)) +
+  geom_col(position='dodge') +
+  facet_wrap(vars(ID)) + 
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
+```
+
+
+## Number of reported gene sets
+
+Although FET and SuSiE both have high relevance, both SuSiE methods return far fewer gene sets. Perhaps this is an apples and oranges comparison. For SuSiE and mr.ash we include gene sets with $PIP > 0.95$. For FET we include gene sets with a Benjamini Hochberg corrected p-value $< 0.05$. For the regularized regression methods we include any gene set with nonzero coefficient. 
+
+```{r gseabenchmark_sizes}
+pattern <- '^gseabenchmark.size_([^_])*$'
+result <- tar_agg(pattern)
+
+t <- 0.95
+
+result %>% ungroup() %>% 
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t)) %>%
+  ggplot(aes(x=method, y=log2(positives), fill=method)) +
+  geom_boxplot(position='dodge')
+
+result %>% ungroup() %>% 
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t)) %>% 
+  mutate(log2pos = log2(positives)) %>%
+  pivot_wider(
+    id_cols = ID, names_from=method, values_from = log2pos) %>%
+  GGally::ggpairs(columns = 2:7)
+```
+
+
+Across the board lasso and elastic net did did worse than Fisher's exact test. That's unexpected. All the bayesian variable selection methods select only a handful of components. 
+
+Logistic SuSiE and SuSiE both have favorable relevance scores, lathough not quite as good as fisher's exact test.
+
+
+## DREAM STRING Consensus modules
+
+These are the gene sets used in the `gerr` paper. The Diseas Module Identification DREAM Challenge was a crowd-sourced attempt at detecting disease related gene modules. The `gerr` paper showed results using 377 gene modules as gene lists. We repeat that analysis here using a few different gene sets: GO-Biological Process, GO-BP noredundant from `WebGestaltR` and MSigDB C2 curated gene sets.
+
+```{r dream_sizes}
+pattern <- '^dream.modules.size_([^_])*$'
+result <- tar_agg(pattern)
+
+t <- 0.95 
+
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t)) %>%
+  ggplot(aes(x=GS_ID, y=positives, fill=method)) +
+  geom_boxplot(position='dodge') + scale_y_continuous(trans='log10') 
+```
+
+
+Okay so for the smaller gene sets `lasso` and `elastic.net` are not really more sparse than Fisher's exact test. But also, in these smaller gene sets FET
+
+logistic SuSiE, with few exceptions return a single gene set with PIP $>0.95$
+
+```{r}
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t), GS_ID == 'go_bp') %>%
+  pivot_wider(
+    id_cols = c(GS_ID, module.name), names_from=method, values_from = positives) %>%
+  select(!c(GS_ID, module.name)) %>%
+    GGally::ggpairs()
+
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t), GS_ID == 'go_bp') %>%
+  pivot_wider(
+    id_cols = c(GS_ID, module.name), names_from=method, values_from = positives) %>%
+  select(!c(GS_ID, module.name)) %>%
+    GGally::ggpairs()
+
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t), GS_ID == 'go_bp') %>%
+  pivot_wider(
+    id_cols = c(GS_ID, module.name), names_from=method, values_from = positives) %>%
+  select(!c(GS_ID, module.name)) %>%
+    GGally::ggpairs()
+```
+
+
+### Credible Sets
+
+```{r}
+pattern <- '^dream.modules.count.cs_([^_])*$'
+result <- tar_agg(pattern)
+
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, module.name, GS_ID, cs_size) %>% unnest(cs_size) %>%
+  filter(cs_size < 100) %>%
+  ggplot(aes(x=cs_size, color=method)) + geom_histogram() + facet_wrap(vars(GS_ID)) + theme(aspect.ratio = 1)
+```
+
+
+### Number of small credible sets per gene list
+Count the number of credible sets with < 10 gene sets in each gene list
+
+```{r}
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, module.name, GS_ID, cs_size) %>% unnest(cs_size) %>%
+  mutate(small_cset = cs_size < 20) %>%
+  group_by(method, module.name, GS_ID) %>%
+  summarise(n_csets = sum(small_cset)) %>%
+  ggplot(aes(x=n_csets, color=method)) + geom_histogram() + facet_wrap(vars(GS_ID)) + theme(aspect.ratio = 1)
+```
+
+
