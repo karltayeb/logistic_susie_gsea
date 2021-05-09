@@ -13,7 +13,7 @@
 
 <meta name="date" content="2021-04-26" />
 
-<title>GSEABenchmark_relevance_analysis</title>
+<title>GSEA Method comparisons</title>
 
 <script src="site_libs/header-attrs-2.7/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -350,7 +350,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">GSEABenchmark_relevance_analysis</h1>
+<h1 class="title toc-ignore">GSEA Method comparisons</h1>
 <h4 class="author">karltayeb</h4>
 <h4 class="date">2021-04-26</h4>
 
@@ -468,16 +468,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatree8fbadf2bafc56576cd089128037d98855a5c49c0targetblank8fbadf2a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/8fbadf2bafc56576cd089128037d98855a5c49c0" target="_blank">8fbadf2</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatreee5b024ab45bc6bdb251d39f7f2f92e8f2cac614etargetblanke5b024aa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/e5b024ab45bc6bdb251d39f7f2f92e8f2cac614e" target="_blank">e5b024a</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatree8fbadf2bafc56576cd089128037d98855a5c49c0targetblank8fbadf2a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatreee5b024ab45bc6bdb251d39f7f2f92e8f2cac614etargetblanke5b024aa" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/8fbadf2bafc56576cd089128037d98855a5c49c0" target="_blank">8fbadf2</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/e5b024ab45bc6bdb251d39f7f2f92e8f2cac614e" target="_blank">e5b024a</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -487,7 +487,6 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/GO_simulation_cache/
-    Ignored:    analysis/figure/
 
 Untracked files:
     Untracked:  GO_simulation_cache/
@@ -511,7 +510,6 @@ Untracked files:
     Untracked:  data/WebGestalt/
     Untracked:  data/WebGestalt_cache/
     Untracked:  data/gene_list.txt
-    Untracked:  gseabenchmark.Rmd
     Untracked:  output/WebGestalt/
 
 Unstaged changes:
@@ -561,6 +559,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/e5b024ab45bc6bdb251d39f7f2f92e8f2cac614e/analysis/gsea_comparisons.Rmd" target="_blank">e5b024a</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+<td>
+wflow_publish(c(“analysis/index.Rmd”, “analysis/gsea_comparisons.Rmd”,
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/karltayeb/logistic_susie_gsea/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/gsea_comparisons.html" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/karltayeb/logistic_susie_gsea/blob/8fbadf2bafc56576cd089128037d98855a5c49c0/analysis/gsea_comparisons.Rmd" target="_blank">8fbadf2</a>
 </td>
 <td>
@@ -580,6 +612,7 @@ wflow_publish(“analysis/gsea_comparisons.Rmd”)
 </div>
 </div>
 </div>
+<p>We try to replicate some analysis from othe GSEA papers/ GSEA Benchmark papers, and extend them to compare multiple GSEA methods under consideration.</p>
 <div id="overview" class="section level2">
 <h2>Overview</h2>
 <pre class="r"><code>library(targets)
@@ -634,17 +667,128 @@ result %&gt;%
   ggplot(aes(x=method, y=precent_optimal_relevance, fill=method)) +
   geom_boxplot(position=&#39;dodge&#39;) + facet_wrap(vars(ID)) </code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/unnamed-chunk-2-1.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>result %&gt;% 
   mutate(precent_optimal_relevance = relevance / opt.relevance) %&gt;%
   ggplot(aes(x=method, y=precent_optimal_relevance, fill=method)) +
   geom_col(position=&#39;dodge&#39;) + facet_wrap(vars(ID)) </code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/unnamed-chunk-2-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-2">
+Past versions of unnamed-chunk-2-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/unnamed-chunk-2-2.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>result %&gt;% 
   ggplot(aes(x=method, y=relevance, fill=method)) +
   geom_col(position=&#39;dodge&#39;) +
   facet_wrap(vars(ID)) + 
   theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())</code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/unnamed-chunk-2-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-3">
+Past versions of unnamed-chunk-2-3.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/unnamed-chunk-2-3.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div id="number-of-reported-gene-sets" class="section level2">
@@ -661,6 +805,43 @@ result %&gt;% ungroup() %&gt;%
   ggplot(aes(x=method, y=log2(positives), fill=method)) +
   geom_boxplot(position=&#39;dodge&#39;)</code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/gseabenchmark_sizes-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-gseabenchmark_sizes-1">
+Past versions of gseabenchmark_sizes-1.png
+</button>
+</p>
+<div id="fig-gseabenchmark_sizes-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/gseabenchmark_sizes-1.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>result %&gt;% ungroup() %&gt;% 
   unnest(c(positives, thresh)) %&gt;%
   filter(near(thresh, t)) %&gt;% 
@@ -672,6 +853,43 @@ result %&gt;% ungroup() %&gt;%
   method from   
   +.gg   ggplot2</code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/gseabenchmark_sizes-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-gseabenchmark_sizes-2">
+Past versions of gseabenchmark_sizes-2.png
+</button>
+</p>
+<div id="fig-gseabenchmark_sizes-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/gseabenchmark_sizes-2.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Across the board lasso and elastic net did did worse than Fisher’s exact test. That’s unexpected. All the bayesian variable selection methods select only a handful of components.</p>
 <p>Logistic SuSiE and SuSiE both have favorable relevance scores, lathough not quite as good as fisher’s exact test.</p>
 </div>
@@ -691,6 +909,43 @@ result %&gt;% ungroup() %&gt;%
 <pre><code>Warning: Transformation introduced infinite values in continuous y-axis</code></pre>
 <pre><code>Warning: Removed 1388 rows containing non-finite values (stat_boxplot).</code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/dream_sizes-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-dream_sizes-1">
+Past versions of dream_sizes-1.png
+</button>
+</p>
+<div id="fig-dream_sizes-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/dream_sizes-1.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Okay so for the smaller gene sets <code>lasso</code> and <code>elastic.net</code> are not really more sparse than Fisher’s exact test. But also, in these smaller gene sets FET</p>
 <p>logistic SuSiE, with few exceptions return a single gene set with PIP <span class="math inline">\(&gt;0.95\)</span></p>
 <pre class="r"><code>result %&gt;% ungroup() %&gt;%
@@ -701,6 +956,43 @@ result %&gt;% ungroup() %&gt;%
   select(!c(GS_ID, module.name)) %&gt;%
     GGally::ggpairs()</code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/unnamed-chunk-3-1.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>result %&gt;% ungroup() %&gt;%
   unnest(c(positives, thresh)) %&gt;%
   filter(near(thresh, t), GS_ID == &#39;go_bp&#39;) %&gt;%
@@ -709,6 +1001,43 @@ result %&gt;% ungroup() %&gt;%
   select(!c(GS_ID, module.name)) %&gt;%
     GGally::ggpairs()</code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-2">
+Past versions of unnamed-chunk-3-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/unnamed-chunk-3-2.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>result %&gt;% ungroup() %&gt;%
   unnest(c(positives, thresh)) %&gt;%
   filter(near(thresh, t), GS_ID == &#39;go_bp&#39;) %&gt;%
@@ -717,6 +1046,43 @@ result %&gt;% ungroup() %&gt;%
   select(!c(GS_ID, module.name)) %&gt;%
     GGally::ggpairs()</code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/unnamed-chunk-3-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-3">
+Past versions of unnamed-chunk-3-3.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/unnamed-chunk-3-3.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <div id="credible-sets" class="section level3">
 <h3>Credible Sets</h3>
 <pre class="r"><code>pattern &lt;- &#39;^dream.modules.count.cs_([^_])*$&#39;
@@ -728,6 +1094,43 @@ result %&gt;% filter(method %in% c(&#39;susie.veb.boost&#39;, &#39;logistic.susi
   ggplot(aes(x=cs_size, color=method)) + geom_histogram() + facet_wrap(vars(GS_ID)) + theme(aspect.ratio = 1)</code></pre>
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/unnamed-chunk-4-1.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="number-of-small-credible-sets-per-gene-list" class="section level3">
 <h3>Number of small credible sets per gene list</h3>
@@ -741,6 +1144,43 @@ result %&gt;% filter(method %in% c(&#39;susie.veb.boost&#39;, &#39;logistic.susi
 <pre><code>`summarise()` has grouped output by &#39;method&#39;, &#39;module.name&#39;. You can override using the `.groups` argument.</code></pre>
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="figure/gsea_comparisons.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a3c53f36b3e70e77347843f59fed3c2f1a4c024e/docs/figure/gsea_comparisons.Rmd/unnamed-chunk-5-1.png" target="_blank">a3c53f3</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
