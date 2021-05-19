@@ -56,6 +56,15 @@ Unfortunately, this does not mean that the relevant gene sets have particularly 
 
 As we'll see most of the components have very small credible sets, so the PIP threshold of 0.1 is not that stringent. Rather, this is telling us that the relevant gene sets have small but slightly elevated PIPs that we would not necessarily pick.
 
+```{r,}
+result <- tar_agg('gseabenchmark.size', dplyr::starts_with)
+
+result %>% unnest(c(positives, thresh)) %>%
+  filter(near(thresh, 0.95)) %>%
+  group_by(ID, method, n_genes) %>% summarise(n.hits = sum(positives)) %>%
+  ggplot(aes(x=method, y=n.hits, fill=method)) + geom_col() + facet_wrap(vars(ID))
+```
+
 ### Credible Sets
 
 ```{r, cset_size_95}
@@ -261,6 +270,33 @@ ggplot() +
   geom_point(data=filter(result, gene.set.type != 'all'),
              aes(x=prop.overlap, y = size, color=gene.set.type),
              position = 'dodge')
+```
+
+
+```{r}
+library(ggvenn)
+x <- list(
+  FET = unique(unlist(fet.result$pip.sets)), 
+  ElasticNet = unique(unlist(en.result$pip.sets)), 
+  LogisticSuSiE = unique(unlist(logistic.susie.pip$pip.sets))
+)
+ggvenn(
+  x, 
+  fill_color = c("#0073C2FF", "#EFC000FF", "#868686FF"),
+  stroke_size = 0.5, set_name_size = 4
+  )
+
+x <- list(
+  FET = unique(unlist(fet.result$pip.sets)), 
+  ElasticNet = unique(unlist(en.result$pip.sets)), 
+  LogisticSuSiE = unique(unlist(logistic.susie.pip$pip.sets)),
+  Relevant = unique(unlist(fet.result$pip.sets))
+)
+ggvenn(
+  x, 
+  fill_color = c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF"),
+  stroke_size = 0.5, set_name_size = 4
+  )
 ```
 
 The gene sets SuSiE is picking out have a higher proportion overlap with the gene list than the "relevant" gene sets. Can't blame the method for doing that!
