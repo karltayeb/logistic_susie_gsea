@@ -1,0 +1,137 @@
+---
+title: "gerr_dream_modules.Rmd"
+author: "Karl Tayeb"
+date: "5/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+library(targets)
+library(tidyverse)
+
+# load and row_bind all targets matching a pattern
+tar_agg <- function(pattern, selector=dplyr::matches){
+  load.env <- new.env()
+  tar_load(selector(pattern), envir = load.env)
+  result <- grep(pattern , names(load.env), value=TRUE)
+  result <- do.call("list", mget(result, envir = load.env))
+  result <- bind_rows(result)
+}
+```
+
+## DREAM STRING Consensus modules
+
+These are the gene sets used in the `gerr` paper. The Diseas Module Identification DREAM Challenge was a crowd-sourced attempt at detecting disease related gene modules. The `gerr` paper showed results using 377 gene modules as gene lists. We repeat that analysis here using a few different gene sets: GO-Biological Process, GO-BP noredundant from `WebGestaltR` and MSigDB C2 curated gene sets.
+
+```{r dream_sizes}
+pattern <- '^dream.modules.size_([^_])*$'
+result <- tar_agg(pattern)
+
+t <- 0.95 
+
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t)) %>%
+  ggplot(aes(x=GS_ID, y=positives, fill=method)) +
+  geom_boxplot(position='dodge') + ylim(0, 100)
+```
+
+The regression approaches really only show benefit when we are working with lots of gene sets, `go_bp`. In two curated gene set sets, `lasso` and `elastic.net` report about as many gene sets on average as Fishers' exact test. SuSiE and logistic SuSiE report much fewer gene sets.
+
+### Enriched gene set venn diagram
+
+To do: make venn diagram of reported gene sets for each method
+
+
+
+### GO BP
+```{r}
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t), GS_ID == 'go_bp') %>%
+  pivot_wider(
+    id_cols = c(GS_ID, module.name), names_from=method, values_from = positives) %>%
+  select(!c(GS_ID, module.name)) %>%
+    GGally::ggpairs()
+```
+
+### GO BP no redundant
+
+```{r}
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t), GS_ID == 'go_no_redundant') %>%
+  pivot_wider(
+    id_cols = c(GS_ID, module.name), names_from=method, values_from = positives) %>%
+  select(!c(GS_ID, module.name)) %>%
+    GGally::ggpairs()
+```
+
+
+### MsigDb C2
+
+```{r}
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t), GS_ID == 'msigdb_c2') %>%
+  pivot_wider(
+    id_cols = c(GS_ID, module.name), names_from=method, values_from = positives) %>%
+  select(!c(GS_ID, module.name)) %>%
+    GGally::ggpairs()
+```
+
+### Credible Sets
+
+```{r}
+pattern <- '^dream.modules.count.cs_([^_])*$'
+result <- tar_agg(pattern)
+
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, module.name, GS_ID, cs_size) %>% unnest(cs_size) %>%
+  filter(cs_size < 100) %>%
+  ggplot(aes(x=cs_size, color=method)) + geom_histogram() + facet_grid(vars(method), vars(GS_ID)) + theme(aspect.ratio = 1)
+```
+
+
+### Number of small credible sets per gene list
+Count the number of credible sets with < 10 gene sets in each gene list
+
+```{r}
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, module.name, GS_ID, cs_size) %>% unnest(cs_size) %>%
+  mutate(small_cset = cs_size < 20) %>%
+  group_by(method, module.name, GS_ID) %>%
+  summarise(n_csets = sum(small_cset)) %>%
+  ggplot(aes(x=n_csets, color=method)) + geom_histogram() + facet_wrap(vars(GS_ID)) + theme(aspect.ratio = 1)
+```
+
+### Number of small credible sets vs size of gene list
+
+```{r}
+tar_load(string.modules)
+
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, module.name, GS_ID, cs_size) %>% unnest(cs_size) %>%
+  mutate(small_cset = cs_size < 20) %>%
+  group_by(method, module.name, GS_ID) %>%
+  summarise(n_csets = sum(small_cset)) %>%
+  left_join(string.modules %>% select(module.name, size)) %>%
+  mutate(size.bin = cut(size, seq(-10, 120, by=10), labels=seq(0, 120, by=10))) %>%
+  ggplot(aes(x=size.bin, weights=n_csets, fill=method)) + geom_bar(position='dodge')
+```
+
+```{r}
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, module.name, GS_ID, cs_size) %>% unnest(cs_size) %>%
+  mutate(small_cset = cs_size < 20) %>%
+  group_by(method, GS_ID) %>%
+  summarise(n_csets = sum(small_cset))
+```
+
+
