@@ -16,5 +16,7 @@ More simulations [link](simulations.html)
 
 Comparing FET, Elastic net, and Logistis SuSiE using gene set rankings from `GSEABenchmarkR` [link](gseabenchmarkR_relevance.html)
 
+[DREAM consensus modules (used by `gerr`)](gerr_dream.html)
+
 Notes [link](gsea_notes.html)
 
