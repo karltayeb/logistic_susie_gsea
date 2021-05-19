@@ -144,20 +144,43 @@ boxplot(
 
 
 ```{r}
-logistic.susie.pip %>% rowwise() %>%
+par(mfrow=c(1, 3))
+
+p1 <- logistic.susie.pip %>% rowwise() %>%
   mutate(
     pip.sets = list(names(which(pip > 0.95))),
     relevant.sets = list(intersect(colnames(jaccard), rownames(gobp.relevance[[ID]]))),
-    max.prop.relevant.in.set = list(apply(as.matrix(jaccard[pip.sets, relevant.sets]), 1, max))
-  ) %>% select(ID, max.prop.relevant.in.set) %>% unnest(max.prop.relevant.in.set) %>%
-  ggplot(aes(x=max.prop.relevant.in.set)) + geom_histogram()
+    m = list(apply(as.matrix(jaccard[pip.sets, relevant.sets]), 1, max))
+  ) %>% select(ID, m) %>% unnest(m) %>%
+  ggplot(aes(x=m)) + geom_histogram() + ggtitle('Jaccard')
+
+p2 <- logistic.susie.pip %>% rowwise() %>%
+  mutate(
+    pip.sets = list(names(which(pip > 0.95))),
+    relevant.sets = list(intersect(colnames(asymmetric), rownames(gobp.relevance[[ID]]))),
+    m = list(apply(as.matrix(asymmetric[pip.sets, relevant.sets]), 1, max))
+  ) %>% select(ID, m) %>% unnest(m) %>%
+  ggplot(aes(x=m)) + geom_histogram() + ggtitle('prop gene set in relevant')
+
+p3 <- logistic.susie.pip %>% rowwise() %>%
+  mutate(
+    pip.sets = list(names(which(pip > 0.95))),
+    relevant.sets = list(intersect(colnames(asymmetric), rownames(gobp.relevance[[ID]]))),
+    m = list(apply(as.matrix(asymmetric[relevant.sets, pip.sets]), 2, max))
+  ) %>% select(ID, m) %>% unnest(m) %>%
+  ggplot(aes(x=m)) + geom_histogram() + ggtitle('prop relevant in gene set')
+
+library(cowplot)
+plot_grid(p1, p2, p3, ncol=3)
 ```
 
-Most of the gene sets with high PIPs do not have much to do with the relevant gene sets. The histgram shows $\max_i\frac{|S \cap  R_i|}{|S \cup R_i|}$ where $S$ is the gene set with large pip and $\{R_i\}$ are the set of relevant gene sets. We would have liked to see that the 
+Most of the gene sets with high PIPs do not have much to do with the relevant gene sets. The first histogram shows $\max_i\frac{|S \cap  R_i|}{|S \cup R_i|}$ where $S$ is the gene set with large pip and $\{R_i\}$ are the set of relevant gene sets. We would have liked to see that the 
 
 The gene sets with large pips have comparatively large overlap with the gene list compared to relevant gene sets. We notice that many of the DE genes participate in more than one gene set. Logistic SuSiE picked out gene sets that largely partition the gene list. That is, each gene in the list is represented by at most one gene set with large pip.
 
 You might think that SuSiE is picking more specific gene sets, surprisingly that is not the case. Below, we see that the gene sets with large PIP are larger than the relevant gene sets.
+
+### Gene set size vs proportion of genes observed in gene list
 
 ```{r, size_overlap}
 logistic.susie.pip <- logistic.susie.pip %>% rowwise() %>%
