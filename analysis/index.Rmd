@@ -14,7 +14,7 @@ First look at logistic SuSiE, with some simulations using GO terms [link](GO_sim
 
 More simulations [link](simulations.html)
 
-Reproducing results from other gsea papers [link](gsea_comparisons.html)
+Comparing FET, Elastic net, and Logistis SuSiE using gene set rankings from `GSEABenchmarkR` [link](gseabenchmarkR_relevance.html)
 
 Notes [link](gsea_notes.html)
 
