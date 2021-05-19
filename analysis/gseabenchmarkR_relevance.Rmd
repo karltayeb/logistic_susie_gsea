@@ -23,60 +23,11 @@ tar_agg <- function(pattern, selector=dplyr::matches){
 
 ## Overview
 
-`GSEABenchmarkR` provides a "relevance score" functionality. For a bunch of microarray and RNA seq experiments they curate a list of gene set rankings. These rankings can be compared against a gene set ranking output from your favorite GSEA method. Good GSEA methods will have rankings that agree with the curated rankings. Additionally, we want good GSEA methods to report relevant gene sets at reasonable thresholds.
+`GSEABenchmarkR` provides unfiromly processed RNASeq data for 33 cancer types from TCGA. They also provide a curated list of gene sets with "relevance scores" that can be used to evaluate the quality of a GSEA method. Good GSEA methods will have rankings that agree with the curated rankings.
 
+Although in the paper they analyze 33 RNASeq datasets from TCGA, only there `GSEABenchmarkeR::loadEData("tcga")` only returns 15 data sets, so we go with that.
 
-`GSEABenchmarkR` provides uniformly processed expression data from TCGA, and for each disease they provide "relevance scores" for gene sets in GO-BP, GO-MF, and KEGG. These relevance scores were derived from MalaCards. I'm not sure exactly how they were generated but they are supposed to serve as Silver standard to benchmark performance of GSEA methods.
-
-Although in the paper they analyze 33 RNASeq datasets from TCGA, only there `GSEABenchmarkeR::loadEData("tcga")` only returns 15 data sets. 
-We follow a vanilla DE pipeline outlined in the `GSEABenchmarkR` documentation, and then apply a suite of gene list based GSEA methods. Finally we use the MalaCards derived relevance scores to evaluate results.
-
-
-```{r, eval=F, echo=F}
-pattern <- '^gseabenchmark.size_([^_])*$'
-result <- tar_agg(pattern)
-
-tar_load('gseabenchmark.size_lasso')
-tar_load('gseabenchmark.size_mr.ash.lasso')
-
-tar_load('gseabenchmark.size_susie.veb.boost')
-tar_load('gseabenchmark.size_susie.veb.boost32')
-tar_load('gseabenchmark.size_susie.veb.boost64')
-
-tar_load('gseabenchmark.size_logistic.susie.veb.boost')
-tar_load('gseabenchmark.size_logistic.susie.veb.boost32')
-tar_load('gseabenchmark.size_logistic.susie.veb.boost64')
-
-tar_load('gseabenchmark.size_lasso')
-tar_load('gseabenchmark.size_elastic.net')
-tar_load('gseabenchmark.size_fet')
-
-result <- bind_rows(
-  gseabenchmark.size_fet,
-  gseabenchmark.size_mr.ash.lasso,
-  gseabenchmark.size_lasso,
-  gseabenchmark.size_susie.veb.boost,
-  gseabenchmark.size_susie.veb.boost32,
-  gseabenchmark.size_susie.veb.boost64,
-
-  gseabenchmark.size_logistic.susie.veb.boost,
-  gseabenchmark.size_logistic.susie.veb.boost32,
-  gseabenchmark.size_logistic.susie.veb.boost64,
-
-  gseabenchmark.size_lasso,
-  gseabenchmark.size_elastic.net
-)
-
-result %>% unnest(c(positives, thresh)) %>% filter(method == 'logistic.susie.veb.boost', near(thresh, 0.95))
-
-result %>% unnest(c(positives, thresh)) %>%
-  filter(near(thresh, 0.95)) %>%
-  filter(grepl('susie', method)) %>%
-  mutate(positives = ifelse(positives > 20, 20, positives)) %>%
-  ggplot(aes(x=positives)) + geom_bar() + facet_wrap(vars(method))
-
-```
-
+We follow a vanilla DE pipeline outlined in the `GSEABenchmarkR` documentation, and then apply a suite of gene list based GSEA methods to the top 100, 500, and 1000 gene sets returned for each. Then we use the MalaCards derived relevance scores to evaluate results.
 
 
 ```{r}
@@ -91,6 +42,8 @@ result %>% mutate(rel = relevance/opt.relevance) %>%
 
 We evaluate the relevance of elastic net, ORA, and logistic SuSiE when we use gene lists comprised of the top 100, 500, or 1000 DE genes for each of the 15 cancer datasets. Logistic SuSiE does better than the others, which indicates that the gene set ranking given by PIPs does a better job prioritizing relevant gene sets.
 
+### Relevance Scores
+
 ```{r}
 result %>% mutate(rel = relevance/opt.relevance) %>%
   filter(thresh %in% c(0, 0.1, 0.9, 0.95)) %>%
@@ -103,6 +56,7 @@ Unfortunately, this does not mean that the relevant gene sets have particularly 
 
 As we'll see most of the components have very small credible sets, so the PIP threshold of 0.1 is not that stringent. Rather, this is telling us that the relevant gene sets have small but slightly elevated PIPs that we would not necessarily pick.
 
+### Credible Sets
 
 ```{r, cset_size_95}
 result <- tar_agg('gseabenchmark.cs', dplyr::starts_with)
@@ -155,12 +109,11 @@ overlap <- Matrix::t(X.eb.gobp) %*% X.eb.gobp
 gs.size <- setNames(as.vector(rep(1, dim(X.eb.gobp)[1]) %*% X.eb.gobp), colnames(X.eb.gobp))
 union <- outer(gs.size, gs.size, '+') - overlap
 jaccard <- overlap / union
-asymmetric <- apply(overlap, 1, function(x) x / gs.size)
+asymmetric <- apply(overlap, 2, function(x) x / gs.size)
 ```
 
 ```{r, BLCA}
 library(S4Vectors)
-
 par(mfrow=c(2, 2))
 gobp.relevance <- mala$mala.gobp
 logistic.susie.pip <- gseabenchmark.fit_logistic.susie.veb.boost32_1000 %>% select(ID, y, pip)
@@ -188,6 +141,19 @@ boxplot(
   main = 'proportion of gene set in gene list', names=c('relevant', 'pip')
 )
 ```
+
+
+```{r}
+logistic.susie.pip %>% rowwise() %>%
+  mutate(
+    pip.sets = list(names(which(pip > 0.95))),
+    relevant.sets = list(intersect(colnames(jaccard), rownames(gobp.relevance[[ID]]))),
+    max.prop.relevant.in.set = list(apply(as.matrix(jaccard[pip.sets, relevant.sets]), 1, max))
+  ) %>% select(ID, max.prop.relevant.in.set) %>% unnest(max.prop.relevant.in.set) %>%
+  ggplot(aes(x=max.prop.relevant.in.set)) + geom_histogram()
+```
+
+Most of the gene sets with high PIPs do not have much to do with the relevant gene sets. The histgram shows $\max_i\frac{|S \cap  R_i|}{|S \cup R_i|}$ where $S$ is the gene set with large pip and $\{R_i\}$ are the set of relevant gene sets. We would have liked to see that the 
 
 The gene sets with large pips have comparatively large overlap with the gene list compared to relevant gene sets. We notice that many of the DE genes participate in more than one gene set. Logistic SuSiE picked out gene sets that largely partition the gene list. That is, each gene in the list is represented by at most one gene set with large pip.
 
@@ -281,8 +247,6 @@ We also see that the size of the credible sets SuSiE is picking are quite a bit 
 ```{r, exit}
 knitr::knit_exit()
 ```
-
-
 
 
 
