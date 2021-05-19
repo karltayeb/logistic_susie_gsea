@@ -468,16 +468,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatree234194cd7600622ab82ae8d5596de2ecd7f3298ctargetblank234194ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/234194cd7600622ab82ae8d5596de2ecd7f3298c" target="_blank">234194c</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatree4e1cbd90006c4a24e5a2e7f0f6cdfccde3519193targetblank4e1cbd9a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/4e1cbd90006c4a24e5a2e7f0f6cdfccde3519193" target="_blank">4e1cbd9</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatree234194cd7600622ab82ae8d5596de2ecd7f3298ctargetblank234194ca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomkarltayeblogisticsusiegseatree4e1cbd90006c4a24e5a2e7f0f6cdfccde3519193targetblank4e1cbd9a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/234194cd7600622ab82ae8d5596de2ecd7f3298c" target="_blank">234194c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/karltayeb/logistic_susie_gsea/tree/4e1cbd90006c4a24e5a2e7f0f6cdfccde3519193" target="_blank">4e1cbd9</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -558,6 +558,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/4e1cbd90006c4a24e5a2e7f0f6cdfccde3519193/analysis/gseabenchmarkR_relevance.Rmd" target="_blank">4e1cbd9</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-19
+</td>
+<td>
+wflow_publish(“analysis/gseabenchmarkR_relevance.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/karltayeb/logistic_susie_gsea/37d5e0213f76ed99184f2947b474c03f63ad4e83/docs/gseabenchmarkR_relevance.html" target="_blank">37d5e02</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-19
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -654,7 +688,7 @@ wflow_publish(“analysis/gseabenchmarkR_relevance.Rmd”)
 library(tidyverse)</code></pre>
 <pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
 <pre><code>✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-✓ tibble  3.1.1     ✓ dplyr   1.0.6
+✓ tibble  3.1.2     ✓ dplyr   1.0.6
 ✓ tidyr   1.1.3     ✓ stringr 1.4.0
 ✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
 <pre class="r"><code># load and row_bind all targets matching a pattern
@@ -774,6 +808,73 @@ karltayeb
 </div>
 <p>Unfortunately, this does not mean that the relevant gene sets have particularly large PIPs. Here we threshold on PIP (or 1 - p for FET), we keep the top ranking gene-sets above the threshold. All gene sets below the threshold are given equal rank. The relevance score for logistic SuSiE drops off even with a modest threshold of 0.1. That is, none of the gene sets with PIPs &gt; 0.1 are even listed among the relevant gene sets.</p>
 <p>As we’ll see most of the components have very small credible sets, so the PIP threshold of 0.1 is not that stringent. Rather, this is telling us that the relevant gene sets have small but slightly elevated PIPs that we would not necessarily pick.</p>
+<pre class="r"><code>result &lt;- tar_agg(&#39;gseabenchmark.size&#39;, dplyr::starts_with)
+
+result %&gt;% unnest(c(positives, thresh)) %&gt;%
+  filter(near(thresh, 0.95)) %&gt;%
+  group_by(ID, method, n_genes) %&gt;% summarise(n.hits = sum(positives)) %&gt;%
+  ggplot(aes(x=method, y=n.hits, fill=method)) + geom_col() + facet_wrap(vars(ID))</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;ID&#39;, &#39;method&#39;. You can override using the `.groups` argument.</code></pre>
+<p><img src="figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/37d5e0213f76ed99184f2947b474c03f63ad4e83/docs/figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-4-1.png" target="_blank">37d5e02</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-19
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/568ea4e6a2e6dcd987dce5e35e8ec74bf53e512c/docs/figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-4-1.png" target="_blank">568ea4e</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-19
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a16415528e0cd5d4c25c770e30d6904cd744daae/docs/figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-4-1.png" target="_blank">a164155</a>
+</td>
+<td>
+karltayeb
+</td>
+<td>
+2021-05-19
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="credible-sets" class="section level3">
 <h3>Credible Sets</h3>
@@ -1101,55 +1202,7 @@ plot_grid(p1, p2, p3, ncol=3)</code></pre>
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
-Past versions of unnamed-chunk-4-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-4-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/568ea4e6a2e6dcd987dce5e35e8ec74bf53e512c/docs/figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-4-1.png" target="_blank">568ea4e</a>
-</td>
-<td>
-karltayeb
-</td>
-<td>
-2021-05-19
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/karltayeb/logistic_susie_gsea/blob/a16415528e0cd5d4c25c770e30d6904cd744daae/docs/figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-4-1.png" target="_blank">a164155</a>
-</td>
-<td>
-karltayeb
-</td>
-<td>
-2021-05-19
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Most of the gene sets with high PIPs do not have much to do with the relevant gene sets. The first histogram shows <span class="math inline">\(\max_i\frac{|S \cap R_i|}{|S \cup R_i|}\)</span> where <span class="math inline">\(S\)</span> is the gene set with large pip and <span class="math inline">\(\{R_i\}\)</span> are the set of relevant gene sets. We would have liked to see that the</p>
 <p>The gene sets with large pips have comparatively large overlap with the gene list compared to relevant gene sets. We notice that many of the DE genes participate in more than one gene set. Logistic SuSiE picked out gene sets that largely partition the gene list. That is, each gene in the list is represented by at most one gene set with large pip.</p>
 <p>You might think that SuSiE is picking more specific gene sets, surprisingly that is not the case. Below, we see that the gene sets with large PIP are larger than the relevant gene sets.</p>
@@ -1348,6 +1401,31 @@ karltayeb
 </table>
 </div>
 </div>
+<pre class="r"><code>library(ggvenn)</code></pre>
+<pre><code>Loading required package: grid</code></pre>
+<pre class="r"><code>x &lt;- list(
+  FET = unique(unlist(fet.result$pip.sets)), 
+  ElasticNet = unique(unlist(en.result$pip.sets)), 
+  LogisticSuSiE = unique(unlist(logistic.susie.pip$pip.sets))
+)
+ggvenn(
+  x, 
+  fill_color = c(&quot;#0073C2FF&quot;, &quot;#EFC000FF&quot;, &quot;#868686FF&quot;),
+  stroke_size = 0.5, set_name_size = 4
+  )</code></pre>
+<p><img src="figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>x &lt;- list(
+  FET = unique(unlist(fet.result$pip.sets)), 
+  ElasticNet = unique(unlist(en.result$pip.sets)), 
+  LogisticSuSiE = unique(unlist(logistic.susie.pip$pip.sets)),
+  Relevant = unique(unlist(fet.result$pip.sets))
+)
+ggvenn(
+  x, 
+  fill_color = c(&quot;#0073C2FF&quot;, &quot;#EFC000FF&quot;, &quot;#868686FF&quot;, &quot;#CD534CFF&quot;),
+  stroke_size = 0.5, set_name_size = 4
+  )</code></pre>
+<p><img src="figure/gseabenchmarkR_relevance.Rmd/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The gene sets SuSiE is picking out have a higher proportion overlap with the gene list than the “relevant” gene sets. Can’t blame the method for doing that!</p>
 <p>We also see that the size of the credible sets SuSiE is picking are quite a bit larger on average than the relevant gene sets. Competing gene sets against each other is really effective when the gene list does not contain many false positives– and should pick out the most narrow gene set. It is more challenging to pick out the most specific gene set when there is substantial noise, however.</p>
 <pre class="r"><code>knitr::knit_exit()</code></pre>
