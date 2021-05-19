@@ -1,0 +1,427 @@
+---
+title: "GSEA Method comparisons"
+author: "karltayeb"
+date: "2021-04-26"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r}
+library(targets)
+library(tidyverse)
+
+# load and row_bind all targets matching a pattern
+tar_agg <- function(pattern, selector=dplyr::matches){
+  load.env <- new.env()
+  tar_load(selector(pattern), envir = load.env)
+  result <- grep(pattern , names(load.env), value=TRUE)
+  result <- do.call("list", mget(result, envir = load.env))
+  result <- bind_rows(result)
+}
+```
+
+## Overview
+
+`GSEABenchmarkR` provides a "relevance score" functionality. For a bunch of microarray and RNA seq experiments they curate a list of gene set rankings. These rankings can be compared against a gene set ranking output from your favorite GSEA method. Good GSEA methods will have rankings that agree with the curated rankings. Additionally, we want good GSEA methods to report relevant gene sets at reasonable thresholds.
+
+
+`GSEABenchmarkR` provides uniformly processed expression data from TCGA, and for each disease they provide "relevance scores" for gene sets in GO-BP, GO-MF, and KEGG. These relevance scores were derived from MalaCards. I'm not sure exactly how they were generated but they are supposed to serve as Silver standard to benchmark performance of GSEA methods.
+
+Although in the paper they analyze 33 RNASeq datasets from TCGA, only there `GSEABenchmarkeR::loadEData("tcga")` only returns 15 data sets. 
+We follow a vanilla DE pipeline outlined in the `GSEABenchmarkR` documentation, and then apply a suite of gene list based GSEA methods. Finally we use the MalaCards derived relevance scores to evaluate results.
+
+
+```{r, eval=F, echo=F}
+pattern <- '^gseabenchmark.size_([^_])*$'
+result <- tar_agg(pattern)
+
+tar_load('gseabenchmark.size_lasso')
+tar_load('gseabenchmark.size_mr.ash.lasso')
+
+tar_load('gseabenchmark.size_susie.veb.boost')
+tar_load('gseabenchmark.size_susie.veb.boost32')
+tar_load('gseabenchmark.size_susie.veb.boost64')
+
+tar_load('gseabenchmark.size_logistic.susie.veb.boost')
+tar_load('gseabenchmark.size_logistic.susie.veb.boost32')
+tar_load('gseabenchmark.size_logistic.susie.veb.boost64')
+
+tar_load('gseabenchmark.size_lasso')
+tar_load('gseabenchmark.size_elastic.net')
+tar_load('gseabenchmark.size_fet')
+
+result <- bind_rows(
+  gseabenchmark.size_fet,
+  gseabenchmark.size_mr.ash.lasso,
+  gseabenchmark.size_lasso,
+  gseabenchmark.size_susie.veb.boost,
+  gseabenchmark.size_susie.veb.boost32,
+  gseabenchmark.size_susie.veb.boost64,
+
+  gseabenchmark.size_logistic.susie.veb.boost,
+  gseabenchmark.size_logistic.susie.veb.boost32,
+  gseabenchmark.size_logistic.susie.veb.boost64,
+
+  gseabenchmark.size_lasso,
+  gseabenchmark.size_elastic.net
+)
+
+result %>% unnest(c(positives, thresh)) %>% filter(method == 'logistic.susie.veb.boost', near(thresh, 0.95))
+
+result %>% unnest(c(positives, thresh)) %>%
+  filter(near(thresh, 0.95)) %>%
+  filter(grepl('susie', method)) %>%
+  mutate(positives = ifelse(positives > 20, 20, positives)) %>%
+  ggplot(aes(x=positives)) + geom_bar() + facet_wrap(vars(method))
+
+```
+
+
+
+```{r}
+result <- tar_agg('gseabenchmark.score', dplyr::starts_with)
+
+result %>% mutate(rel = relevance/opt.relevance) %>%
+  filter(near(thresh, 0)) %>%
+  ggplot(aes(x=method, y = rel, fill=method)) + 
+  geom_boxplot() + facet_wrap(vars(n_genes)) +
+  theme(aspect=1.0, axis.text.x=element_blank())
+```
+
+We evaluate the relevance of elastic net, ORA, and logistic SuSiE when we use gene lists comprised of the top 100, 500, or 1000 DE genes for each of the 15 cancer datasets. Logistic SuSiE does better than the others, which indicates that the gene set ranking given by PIPs does a better job prioritizing relevant gene sets.
+
+```{r}
+result %>% mutate(rel = relevance/opt.relevance) %>%
+  filter(thresh %in% c(0, 0.1, 0.9, 0.95)) %>%
+  ggplot(aes(x=method, y = rel, fill=method)) + 
+  geom_boxplot() + facet_grid(vars(thresh), vars(n_genes)) +
+  theme(aspect=1.0, axis.text.x=element_blank())
+```
+
+Unfortunately, this does not mean that the relevant gene sets have particularly large PIPs. Here we threshold on PIP (or 1 - p for FET), we keep the top ranking gene-sets above the threshold. All gene sets below the threshold are given equal rank. The relevance score for logistic SuSiE drops off even with a modest threshold of 0.1. That is, none of the gene sets with PIPs > 0.1 are even listed among the relevant gene sets.
+
+As we'll see most of the components have very small credible sets, so the PIP threshold of 0.1 is not that stringent. Rather, this is telling us that the relevant gene sets have small but slightly elevated PIPs that we would not necessarily pick.
+
+
+```{r, cset_size_95}
+result <- tar_agg('gseabenchmark.cs', dplyr::starts_with)
+
+r2 <- result %>% filter(near(target_coverage, 0.95)) %>%
+  select(method, n_genes, ID, cs_size) %>% unnest(cs_size) %>%
+  mutate(cs.bin = cut(cs_size, c(0, 1, 10, 100, 1000, 10000), labels = c(1, 10, 100, 1000, 10000)))
+
+r2 %>% ggplot(aes(x=cs.bin)) + geom_bar() + facet_wrap(vars(n_genes)) + theme(aspect=1.0)
+
+r2$cs.bin[1]
+r2 %>% mutate(small.cs = (cs.bin %in% c(1, 10, 100))) %>% group_by(method, ID, n_genes) %>% 
+  summarise(n.small.cs = sum(small.cs))%>%
+  ggplot(aes(x=n.small.cs)) + geom_histogram() + facet_wrap(vars(n_genes)) + theme(aspect=1.0)
+```
+
+Defining small credible sets as 95% credible sets with fewer than 100 gene sets, we see that many for many cancer types, logistic SuSiE reports 0 small credible sets.
+
+
+The situation is not improved by considering credible sets with lower coverage. For example, we can look at the 10% credible sets.
+
+```{r cset_sizes_10}
+r2 <- result %>% filter(near(target_coverage, 0.1)) %>%
+  select(method, n_genes, ID, cs_size) %>% unnest(cs_size) %>%
+  mutate(cs.bin = cut(cs_size, c(0, 1, 10, 100, 1000, 10000), labels = c(1, 10, 100, 1000, 10000)))
+
+r2 %>% ggplot(aes(x=cs.bin)) + geom_bar() + facet_wrap(vars(n_genes)) + theme(aspect=1.0)
+
+r2 %>% mutate(small.cs = (cs.bin %in% c(1, 10, 100))) %>% group_by(method, ID, n_genes) %>% 
+  summarise(n.small.cs = sum(small.cs))%>%
+  ggplot(aes(x=n.small.cs)) + geom_histogram() + facet_wrap(vars(n_genes)) + theme(aspect=1.0)
+```
+
+
+### Are the hits related to the high relevance gene sets?
+
+We've seen that logistic SuSiE is returning a few small credible sets, mostly singletons (ie a single gene sets with PIP close to 1). We've also seen that these gene sets are NOT the "high relevance" gene sets provided by `GSEABenchmarkR`, but that these gene sets do show slightly elevated, but small PIPs. 
+
+Are the gene sets that logistic SuSie picks out related to the relevant gene sets?
+
+```{r, setup}
+tar_load(mala)
+tar_load(gseabenchmark.fit_logistic.susie.veb.boost32_1000)
+tar_load(gseabenchmark.fit_fet_1000)
+tar_load(gseabenchmark.fit_elastic.net_1000)
+
+tar_load(X.eb.gobp)
+
+overlap <- Matrix::t(X.eb.gobp) %*% X.eb.gobp
+gs.size <- setNames(as.vector(rep(1, dim(X.eb.gobp)[1]) %*% X.eb.gobp), colnames(X.eb.gobp))
+union <- outer(gs.size, gs.size, '+') - overlap
+jaccard <- overlap / union
+asymmetric <- apply(overlap, 1, function(x) x / gs.size)
+```
+
+```{r, BLCA}
+library(S4Vectors)
+
+par(mfrow=c(2, 2))
+gobp.relevance <- mala$mala.gobp
+logistic.susie.pip <- gseabenchmark.fit_logistic.susie.veb.boost32_1000 %>% select(ID, y, pip)
+
+pip.sets <- names(which(logistic.susie.pip$pip[[1]] > 0.95))
+relevant.sets <- intersect(colnames(jaccard), rownames(gobp.relevance$BLCA))
+
+genes <- names(which(logistic.susie.pip$y[[1]][, 1]) != 0)
+
+hist(
+  as.vector(X.eb.gobp[genes, relevant.sets] %*% rep(1, length(relevant.sets))),
+  main = 'relevant gene sets per gene in list'
+)
+
+hist(
+  as.vector(X.eb.gobp[genes, pip.sets] %*% rep(1, length(pip.sets))),
+  main = 'pip gene sets per gene in list'
+)
+
+image(t(as.matrix(jaccard[pip.sets, relevant.sets])), keep.dendro = F, main='Jaccard Index', ylab = 'large pip gene sets', xlab = 'relevant gene sets', )
+
+boxplot(
+  as.vector(rep(1, length(genes)) %*% X.eb.gobp[genes, relevant.sets] / gs.size[relevant.sets]),
+  as.vector(rep(1, length(genes)) %*% X.eb.gobp[genes, pip.sets] / gs.size[pip.sets]),
+  main = 'proportion of gene set in gene list', names=c('relevant', 'pip')
+)
+```
+
+The gene sets with large pips have comparatively large overlap with the gene list compared to relevant gene sets. We notice that many of the DE genes participate in more than one gene set. Logistic SuSiE picked out gene sets that largely partition the gene list. That is, each gene in the list is represented by at most one gene set with large pip.
+
+You might think that SuSiE is picking more specific gene sets, surprisingly that is not the case. Below, we see that the gene sets with large PIP are larger than the relevant gene sets.
+
+```{r, size_overlap}
+logistic.susie.pip <- logistic.susie.pip %>% rowwise() %>%
+  mutate(
+    pip.sets = list(names(which(pip > 0.95))),
+    relevant.sets = list(intersect(colnames(jaccard), rownames(gobp.relevance[[ID]]))),
+    genes = list(names(which(y[, 1]) != 0)),
+    relevant.set.overlap = list(as.vector(rep(1, length(genes)) %*% X.eb.gobp[genes, relevant.sets])),
+    relevant.set.size = list(as.vector(gs.size[relevant.sets])),
+    pip.set.overlap = list(as.vector(rep(1, length(genes)) %*% X.eb.gobp[genes, pip.sets])),
+    pip.set.size = list(as.vector(gs.size[pip.sets])),
+    total.set.overlap = list(as.vector(rep(1, length(genes)) %*% X.eb.gobp[genes,])),
+    total.set.size = list(as.vector(gs.size))
+)
+
+fet.result <- gseabenchmark.fit_fet_1000 %>% rowwise() %>%
+  mutate(
+    pip.sets = list(names(which(one_minus_bh_p > 0.95))),
+    pip.set.overlap = list(as.vector(rep(1, length(genes)) %*% X.eb.gobp[genes, pip.sets])),
+    pip.set.size = list(as.vector(gs.size[pip.sets])),
+  )
+
+en.result <- gseabenchmark.fit_elastic.net_1000 %>% rowwise() %>%
+  mutate(
+    pip.sets = list(names(which(selected > 0.95))),
+    pip.set.overlap = list(as.vector(rep(1, length(genes)) %*% X.eb.gobp[genes, pip.sets])),
+    pip.set.size = list(as.vector(gs.size[pip.sets])),
+  )
+
+result <- bind_rows(
+  logistic.susie.pip %>%
+  select(ID, relevant.set.overlap, relevant.set.size) %>% 
+  unnest(-ID) %>% 
+  mutate(
+    size = relevant.set.size,
+    prop.overlap = relevant.set.overlap / relevant.set.size,
+    gene.set.type = 'relevant'
+  ) %>% select(ID, gene.set.type, prop.overlap, size),
+  logistic.susie.pip %>%
+    select(ID, pip.set.overlap, pip.set.size) %>% 
+    unnest(-ID) %>% 
+    mutate(
+      size = pip.set.size,
+      prop.overlap = pip.set.overlap / pip.set.size,
+      gene.set.type = 'logistic.susie'
+    ) %>% select(ID, gene.set.type, prop.overlap, size),
+  logistic.susie.pip %>%
+  select(ID, total.set.overlap, total.set.size) %>% 
+  unnest(-ID) %>% 
+  mutate(
+    size = total.set.size,
+    prop.overlap = total.set.overlap / total.set.size,
+    gene.set.type = 'all'
+  ) %>% select(ID, gene.set.type, prop.overlap, size),
+  fet.result %>%
+  select(ID, pip.set.overlap, pip.set.size) %>% 
+  unnest(-ID) %>% 
+  mutate(
+    size = pip.set.size,
+    prop.overlap = pip.set.overlap / pip.set.size,
+    gene.set.type = 'fet'
+  ) %>% select(ID, gene.set.type, prop.overlap, size),
+  en.result %>%
+  select(ID, pip.set.overlap, pip.set.size) %>% 
+  unnest(-ID) %>% 
+  mutate(
+    size = pip.set.size,
+    prop.overlap = pip.set.overlap / pip.set.size,
+    gene.set.type = 'elastic.net'
+  ) %>% select(ID, gene.set.type, prop.overlap, size)
+)
+
+
+result %>% ggplot(aes(x=gene.set.type, y = prop.overlap)) + geom_boxplot()
+result %>% ggplot(aes(x=gene.set.type, y = size)) + geom_boxplot()
+
+ggplot() +
+  geom_point(data=filter(result, gene.set.type != 'all'),
+             aes(x=prop.overlap, y = size, color=gene.set.type),
+             position = 'dodge')
+```
+
+The gene sets SuSiE is picking out have a higher proportion overlap with the gene list than the "relevant" gene sets. Can't blame the method for doing that!
+
+We also see that the size of the credible sets SuSiE is picking are quite a bit larger on average than the relevant gene sets. Competing gene sets against each other is really effective when the gene list does not contain many false positives-- and should pick out the most narrow gene set. It is more challenging to pick out the most specific gene set when there is substantial noise, however.
+
+```{r, exit}
+knitr::knit_exit()
+```
+
+
+
+
+
+
+# Old
+
+1. Took the gene sets used in GSEABenchmarkeR paper [cite] from GO and KEGG (downloaded from `EnrichmentBrowser`, filter down to gene sets larger that 5 genes and smaller than 500 genes).
+1. Performed a vanilla differential expression analysis from the `GSEABenchmarkeR` documentation for each TCGA expression set. We construct gene lists by taking all genes with Benjamini Hochberg corrected pvalue $< 0.05$
+1. Fit gene-list based GSEA methods to the resulting gene lists
+1. Compute a "relevance score" which compares the ranking produced by the GSEA method with the relevance scores.
+
+```{r}
+library(targets)
+library(tidyverse)
+
+# load and row_bind all targets matching a pattern
+tar_agg <- function(pattern){
+  load.env <- new.env()
+  tar_load(matches(pattern), envir = load.env)
+  result <- grep(pattern , names(load.env), value=TRUE)
+  result <- do.call("list", mget(result, envir = load.env))
+  result <- bind_rows(result)
+}
+```
+
+
+## GSEA BenchmarkR
+
+### Relevance scores
+
+`GSEABenchmarkeR` is a package for benchmarking GSEA methods. 
+
+Fishers exact test, SuSiE, and Logistic SuSiE have the highest relevance according to this relevance scores
+Ranks for SuSie, Logistic SuSiE, and mr.ash generated from PIPs, ranks for FET generated from BH corrected p-values. 
+
+
+## Number of reported gene sets
+
+Although FET and SuSiE both have high relevance, both SuSiE methods return far fewer gene sets. Perhaps this is an apples and oranges comparison. For SuSiE and mr.ash we include gene sets with $PIP > 0.95$. For FET we include gene sets with a Benjamini Hochberg corrected p-value $< 0.05$. For the regularized regression methods we include any gene set with nonzero coefficient. 
+
+```{r gseabenchmark_sizes}
+pattern <- '^gseabenchmark.size_([^_])*$'
+result <- tar_agg(pattern)
+
+t <- 0.95
+
+result %>% ungroup() %>% 
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t)) %>%
+  ggplot(aes(x=method, y=log2(positives), fill=method)) +
+  geom_boxplot(position='dodge')
+
+result %>% ungroup() %>% 
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t)) %>% 
+  mutate(log2pos = log2(positives)) %>%
+  pivot_wider(
+    id_cols = ID, names_from=method, values_from = log2pos) %>%
+  GGally::ggpairs(columns = 2:7)
+```
+
+
+Across the board lasso and elastic net did did worse than Fisher's exact test. That's unexpected. All the bayesian variable selection methods select only a handful of components. 
+
+Logistic SuSiE and SuSiE both have favorable relevance scores, lathough not quite as good as fisher's exact test.
+
+
+## DREAM STRING Consensus modules
+
+These are the gene sets used in the `gerr` paper. The Diseas Module Identification DREAM Challenge was a crowd-sourced attempt at detecting disease related gene modules. The `gerr` paper showed results using 377 gene modules as gene lists. We repeat that analysis here using a few different gene sets: GO-Biological Process, GO-BP noredundant from `WebGestaltR` and MSigDB C2 curated gene sets.
+
+```{r dream_sizes}
+pattern <- '^dream.modules.size_([^_])*$'
+result <- tar_agg(pattern)
+
+t <- 0.95 
+
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t)) %>%
+  ggplot(aes(x=GS_ID, y=positives, fill=method)) +
+  geom_boxplot(position='dodge') + scale_y_continuous(trans='log10') 
+```
+
+
+Okay so for the smaller gene sets `lasso` and `elastic.net` are not really more sparse than Fisher's exact test. But also, in these smaller gene sets FET
+
+logistic SuSiE, with few exceptions return a single gene set with PIP $>0.95$
+
+```{r}
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t), GS_ID == 'go_bp') %>%
+  pivot_wider(
+    id_cols = c(GS_ID, module.name), names_from=method, values_from = positives) %>%
+  select(!c(GS_ID, module.name)) %>%
+    GGally::ggpairs()
+
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t), GS_ID == 'go_bp') %>%
+  pivot_wider(
+    id_cols = c(GS_ID, module.name), names_from=method, values_from = positives) %>%
+  select(!c(GS_ID, module.name)) %>%
+    GGally::ggpairs()
+
+result %>% ungroup() %>%
+  unnest(c(positives, thresh)) %>%
+  filter(near(thresh, t), GS_ID == 'go_bp') %>%
+  pivot_wider(
+    id_cols = c(GS_ID, module.name), names_from=method, values_from = positives) %>%
+  select(!c(GS_ID, module.name)) %>%
+    GGally::ggpairs()
+```
+
+
+### Credible Sets
+
+```{r}
+pattern <- '^dream.modules.count.cs_([^_])*$'
+result <- tar_agg(pattern)
+
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, module.name, GS_ID, cs_size) %>% unnest(cs_size) %>%
+  filter(cs_size < 100) %>%
+  ggplot(aes(x=cs_size, color=method)) + geom_histogram() + facet_wrap(vars(GS_ID)) + theme(aspect.ratio = 1)
+```
+
+
+### Number of small credible sets per gene list
+Count the number of credible sets with < 10 gene sets in each gene list
+
+```{r}
+result %>% filter(method %in% c('susie.veb.boost', 'logistic.susie.veb.boost')) %>%
+  select(method, module.name, GS_ID, cs_size) %>% unnest(cs_size) %>%
+  mutate(small_cset = cs_size < 20) %>%
+  group_by(method, module.name, GS_ID) %>%
+  summarise(n_csets = sum(small_cset)) %>%
+  ggplot(aes(x=n_csets, color=method)) + geom_histogram() + facet_wrap(vars(GS_ID)) + theme(aspect.ratio = 1)
+```
+
+
